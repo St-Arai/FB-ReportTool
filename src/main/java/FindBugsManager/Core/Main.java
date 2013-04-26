@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Properties;
 
 import FindBugsManager.FindBugs.CommitInfo;
 import FindBugsManager.FindBugs.CommitManager;
@@ -16,13 +15,7 @@ import FindBugsManager.FindBugs.FindBugsManager;
 public class Main {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		Properties properties = new Properties();
-		try {
-			properties.load(new FileInputStream("settings.properties"));
-		} catch (IOException e2) {
-			e2.printStackTrace();
-		}
-		String bugOutputPath = properties.getProperty("outputDirectory");
+		String bugOutputPath = Settings.getOutputDirectory();
 
 		File output = new File(bugOutputPath + "output.xml");
 
