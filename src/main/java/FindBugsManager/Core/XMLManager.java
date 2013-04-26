@@ -163,7 +163,8 @@ public class XMLManager {
 			// StreamResult result = new StreamResult(writer);
 
 			DOMSource source = new DOMSource(document);
-			File newXML = new File("C:/Projects/bugOutput/bugData.xml");
+			File newXML = new File(Settings.getOutputDirectory()
+					+ "bugData.xml");
 			FileOutputStream os = new FileOutputStream(newXML);
 			StreamResult result = new StreamResult(os);
 			transformer.transform(source, result);

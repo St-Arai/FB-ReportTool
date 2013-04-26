@@ -15,11 +15,13 @@ import FindBugsManager.FindBugs.FindBugsManager;
 public class Main {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		String bugOutputPath = "C:/Projects/workspace/bugOutput/";
+		String bugOutputPath = Settings.getOutputDirectory();
 
 		File output = new File(bugOutputPath + "output.xml");
 
 		File gitFile = new File("C:/Projects/workspace/TeamGamification/.git");
+		// File gitFile = new File("C:/Projects/workspace/FBsample/.git");
+
 		String filePath = "FBsample/src/src/FBsample.java";
 		CommitManager commitMng = new CommitManager(gitFile, filePath);
 		ArrayList<CommitInfo> info = commitMng.getCommitLog();
