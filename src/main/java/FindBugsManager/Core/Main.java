@@ -15,9 +15,11 @@ import FindBugsManager.FindBugs.FindBugsManager;
 public class Main {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		File output = new File("C:/Projects/bugOutput/output.xml");
+		String bugOutputPath = "C:/Projects/workspace/bugOutput/";
 
-		File gitFile = new File("C:/TeamGamification/.git");
+		File output = new File(bugOutputPath + "output.xml");
+
+		File gitFile = new File("C:/Projects/workspace/TeamGamification/.git");
 		String filePath = "FBsample/src/src/FBsample.java";
 		CommitManager commitMng = new CommitManager(gitFile, filePath);
 		ArrayList<CommitInfo> info = commitMng.getCommitLog();
@@ -29,11 +31,11 @@ public class Main {
 		String previous = info.get(1).getCommitTime().toString() + " "
 				+ info.get(1).getCommitMessage().replaceAll("\n", "");
 
-		File bugOutput = new File("C:/Projects/bugOutput/" + current + ".xml");
-		File preOutput = new File("C:/Projects/bugOutput/" + previous + ".xml");
+		File bugOutput = new File(bugOutputPath + current + ".xml");
+		File preOutput = new File(bugOutputPath + previous + ".xml");
 
 		if (!(bugOutput.exists())) {
-			File newfile = new File("C:/Projects/bugOutput/" + current + ".xml");
+			File newfile = new File(bugOutputPath + current + ".xml");
 
 			try {
 				newfile.createNewFile();
@@ -43,8 +45,7 @@ public class Main {
 		}
 
 		if (!(preOutput.exists())) {
-			File newfile = new File("C:/Projects/bugOutput/" + previous
-					+ ".xml");
+			File newfile = new File(bugOutputPath + previous + ".xml");
 
 			try {
 				newfile.createNewFile();
