@@ -16,6 +16,11 @@ import edu.umd.cs.findbugs.BugInstance;
 
 public class BlameManager extends GitManager {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5815629130134748289L;
+
 	private BlameResult result = null;
 	private ArrayList<BugInfo> infoList = null;
 
@@ -40,13 +45,10 @@ public class BlameManager extends GitManager {
 			setAuthor();
 
 		} catch (NoHeadException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (GitAPIException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

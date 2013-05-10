@@ -34,8 +34,6 @@ public class XMLManager {
 		DocumentBuilder builder;
 		try {
 			builder = factory.newDocumentBuilder();
-			// DOMImplementation domImpl = builder.getDOMImplementation();
-			// Document document = domImpl.createDocument("", "root", null);
 
 			Document document = builder.newDocument();
 
@@ -159,9 +157,6 @@ public class XMLManager {
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
-			// StringWriter writer = new StringWriter();
-			// StreamResult result = new StreamResult(writer);
-
 			DOMSource source = new DOMSource(document);
 			File newXML = new File(Settings.getOutputDirectory()
 					+ "bugData.xml");
@@ -170,16 +165,12 @@ public class XMLManager {
 			transformer.transform(source, result);
 
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TransformerConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TransformerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
