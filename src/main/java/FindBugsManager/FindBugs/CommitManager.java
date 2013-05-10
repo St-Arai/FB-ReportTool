@@ -61,13 +61,10 @@ public class CommitManager extends GitManager implements ActionListener {
 				commitLog.add(new CommitInfo(commit, author, time, message));
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoHeadException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (GitAPIException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -140,13 +137,10 @@ public class CommitManager extends GitManager implements ActionListener {
 
 			switch (commandNum) {
 				case 1 :
-					// frame.getContentPane().removeAll();
 					break;
 				case 2 :
-					// frame.getContentPane().removeAll();
 					break;
 				case 3 :
-					// frame.getContentPane().removeAll();
 					try {
 						repos = new FileRepository(_file);
 						Git git = new Git(repos);
@@ -210,6 +204,5 @@ public class CommitManager extends GitManager implements ActionListener {
 					break;
 			}
 		}
-		// frame.repaint();
 	}
 }

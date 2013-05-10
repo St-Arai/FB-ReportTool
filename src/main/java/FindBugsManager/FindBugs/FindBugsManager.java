@@ -188,7 +188,6 @@ public class FindBugsManager {
 	public void displayAll() {
 		BugInstance instance = null;
 		int start = 0, end = 0;
-		// EditType type = null;
 
 		int count = infoList.size();
 		System.out.println("Number of Bugs : " + count + "\n");
@@ -196,12 +195,10 @@ public class FindBugsManager {
 			instance = info.getBugInstance();
 			start = info.getStartLine();
 			end = info.getEndLine();
-			// type = info.getEditType();
 
 			displayPatternInfo(instance);
 			System.out.println("Author : " + info.getAuthor());
 			System.out.println("Line : " + start + " to " + end);
-			// System.out.println("EditType : " + type.name());
 			System.out.println();
 		}
 	}

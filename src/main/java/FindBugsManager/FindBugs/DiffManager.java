@@ -13,6 +13,11 @@ import org.gitective.core.BlobUtils;
 
 public class DiffManager extends GitManager {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private Collection<Edit> _edits = null;
 	private ArrayList<BugInfo> infoList = null;
 
@@ -32,7 +37,6 @@ public class DiffManager extends GitManager {
 		try {
 			repo = new FileRepository(_file);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -63,7 +67,6 @@ public class DiffManager extends GitManager {
 					} else {
 						info.setEditType(EditType.NO_CHANGE);
 					}
-					// System.out.println(edit.getType());
 				}
 			}
 		} else {

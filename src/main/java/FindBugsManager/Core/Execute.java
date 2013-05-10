@@ -28,8 +28,6 @@ public class Execute {
 		blame = new BlameManager(gitFile, filePath);
 		manager.checkEditedBugs(diff, blame);
 
-		// blame.display();
-		// diff.display();
 		commit.display();
 	}
 }
