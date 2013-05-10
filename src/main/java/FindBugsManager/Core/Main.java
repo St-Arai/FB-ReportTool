@@ -1,11 +1,7 @@
 package FindBugsManager.Core;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 import FindBugsManager.FindBugs.CommitInfo;
@@ -56,34 +52,34 @@ public class Main {
 			}
 		}
 
-		if (output.length() != bugOutput.length()) {
-			try {
-				FileChannel copyPreOutput = new FileInputStream(bugOutput)
-						.getChannel();
-				FileChannel preOutputDestination = new FileOutputStream(
-						preOutput).getChannel();
-				copyPreOutput.transferTo(0, copyPreOutput.size(),
-						preOutputDestination);
-				copyPreOutput.close();
-				preOutputDestination.close();
-
-				FileChannel copyOutput = new FileInputStream(output)
-						.getChannel();
-				FileChannel outputDestination = new FileOutputStream(bugOutput)
-						.getChannel();
-
-				copyOutput.transferTo(0, copyOutput.size(), outputDestination);
-				copyOutput.close();
-				outputDestination.close();
-
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		// if (output.length() != bugOutput.length()) {
+		// try {
+		// FileChannel copyPreOutput = new FileInputStream(bugOutput)
+		// .getChannel();
+		// FileChannel preOutputDestination = new FileOutputStream(
+		// preOutput).getChannel();
+		// copyPreOutput.transferTo(0, copyPreOutput.size(),
+		// preOutputDestination);
+		// copyPreOutput.close();
+		// preOutputDestination.close();
+		//
+		// FileChannel copyOutput = new FileInputStream(output)
+		// .getChannel();
+		// FileChannel outputDestination = new FileOutputStream(bugOutput)
+		// .getChannel();
+		//
+		// copyOutput.transferTo(0, copyOutput.size(), outputDestination);
+		// copyOutput.close();
+		// outputDestination.close();
+		//
+		// } catch (FileNotFoundException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
 
 		FindBugsManager manager = FindBugsManager.getInstance();
 		XMLManager xml = new XMLManager();
