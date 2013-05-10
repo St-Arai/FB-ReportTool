@@ -15,8 +15,8 @@ public class Main {
 
 		File output = new File(bugOutputPath + "output.xml");
 
-		File gitFile = new File("C:/Projects/workspace/TeamGamification/.git");
-		// File gitFile = new File("C:/Projects/workspace/FBsample/.git");
+		//File gitFile = new File("C:/Projects/workspace/TeamGamification/.git");
+		File gitFile = new File("D:/Users/ALEXANDRITE/Projects/FBsample");
 
 		String filePath = "FBsample/src/src/FBsample.java";
 		CommitManager commitMng = new CommitManager(gitFile, filePath);
