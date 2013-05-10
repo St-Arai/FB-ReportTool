@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6d0022098df448114b510cf34adf3a654647bda8
 eclipse.preferences.version=1
 org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.5
 org.eclipse.jdt.core.compiler.compliance=1.5
 org.eclipse.jdt.core.compiler.problem.forbiddenReference=warning
 org.eclipse.jdt.core.compiler.source=1.5
+<<<<<<< HEAD
 =======
 eclipse.preferences.version=1
 org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.5
@@ -291,3 +295,5 @@ org.eclipse.jdt.core.formatter.wrap_before_binary_operator=true
 org.eclipse.jdt.core.formatter.wrap_before_or_operator_multicatch=true
 org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested=true
 >>>>>>> master
+=======
+>>>>>>> 6d0022098df448114b510cf34adf3a654647bda8
