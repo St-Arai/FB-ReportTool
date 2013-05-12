@@ -18,12 +18,12 @@ public class DiffManager extends GitManager {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Collection<Edit> _edits = null;
-	private ArrayList<BugInfo> infoList = null;
+	private static Collection<Edit> _edits = null;
+	private transient ArrayList<BugInfo> infoList = null;
 
-	private FindBugsManager manager = null;
+	private transient FindBugsManager manager = null;
 
-	private final String branchName = "master";
+	private final static String branchName = "master";
 
 	public DiffManager(File file, String path) {
 		super(file, path);
