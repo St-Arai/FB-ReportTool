@@ -35,6 +35,7 @@ public class FindBugsManager {
 		if (file.length() == 0) {
 			// nothing
 		} else {
+			infoList = new ArrayList<BugInfo>();
 			parseXML(infoList);
 		}
 	}
@@ -44,6 +45,7 @@ public class FindBugsManager {
 		if (file.length() == 0) {
 			// nothing
 		} else {
+			preInfoList = new ArrayList<BugInfo>();
 			parseXML(preInfoList);
 		}
 	}
@@ -66,8 +68,7 @@ public class FindBugsManager {
 				if (child instanceof Element) {
 					Element childElement = (Element) child;
 					if (childElement.getTagName().equals("BugInstance")) {
-						int bugPriority = Integer.parseInt(childElement
-								.getAttribute("priority"));
+						int bugPriority = Integer.parseInt(childElement.getAttribute("priority"));
 						String bugType = childElement.getAttribute("type");
 
 						NodeList grandChild = childElement.getChildNodes();
@@ -75,17 +76,14 @@ public class FindBugsManager {
 							Node grand = grandChild.item(j);
 							if (grand instanceof Element) {
 								Element grandElement = (Element) grand;
-								if (grandElement.getTagName().equals(
-										"SourceLine")) {
-									startLine = Integer.parseInt(grandElement
-											.getAttribute("start"));
-									endLine = Integer.parseInt(grandElement
-											.getAttribute("end"));
+								if (grandElement.getTagName().equals("SourceLine")) {
+									startLine = Integer
+											.parseInt(grandElement.getAttribute("start"));
+									endLine = Integer.parseInt(grandElement.getAttribute("end"));
 								}
 							}
 						}
-						BugInstance instance = new BugInstance(bugType,
-								bugPriority);
+						BugInstance instance = new BugInstance(bugType, bugPriority);
 
 						BugInfo info = new BugInfo(instance, startLine, endLine);
 						bugInfoList.add(info);
@@ -126,6 +124,8 @@ public class FindBugsManager {
 	}
 
 	public void checkEditedBugs(DiffManager diff, BlameManager blame) {
+		editedBugList = new ArrayList<BugInfo>();
+
 		for (BugInfo bugInfo : preInfoList) {
 			EditType type = bugInfo.getEditType();
 			if (type == EditType.EDIT) {
@@ -141,8 +141,7 @@ public class FindBugsManager {
 				for (BugInfo info : infoList) {
 					if (info.getPreStartLine() <= preBugStart
 							&& preBugStart <= info.getPreEndLine()) {
-						if (info.getBugInstance().equals(
-								bugInfo.getBugInstance())) {
+						if (info.getBugInstance().equals(bugInfo.getBugInstance())) {
 							info.setExistFlag();
 						}
 					}
@@ -159,8 +158,7 @@ public class FindBugsManager {
 
 			ArrayList<String> author;
 			for (BugInfo bugInfo : editedBugList) {
-				author = blame.getAuthors(bugInfo.getStartLine(),
-						bugInfo.getEndLine());
+				author = blame.getAuthors(bugInfo.getStartLine(), bugInfo.getEndLine());
 				bugInfo.setAuthor(author.get(0));
 			}
 		}
@@ -213,8 +211,7 @@ public class FindBugsManager {
 
 		System.out.println(bugCategory);
 		System.out.println(bugAbbrev + " : " + bugType);
-		System.out.println(bugPriority + " : " + rankCategory + "(" + bugRank
-				+ ")");
+		System.out.println(bugPriority + " : " + rankCategory + "(" + bugRank + ")");
 	}
 
 }

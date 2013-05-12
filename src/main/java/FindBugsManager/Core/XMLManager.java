@@ -61,41 +61,39 @@ public class XMLManager {
 
 				Element category = document.createElement("Category");
 				instance.appendChild(category);
-				Text categoryText = document.createTextNode(info
-						.getBugInstance().getBugPattern().getCategory());
+				Text categoryText = document.createTextNode(info.getBugInstance().getBugPattern()
+						.getCategory());
 				category.appendChild(categoryText);
 
 				Element abbrev = document.createElement("Abbreviation");
 				instance.appendChild(abbrev);
-				Text abbrevText = document.createTextNode(info.getBugInstance()
-						.getAbbrev());
+				Text abbrevText = document.createTextNode(info.getBugInstance().getAbbrev());
 				abbrev.appendChild(abbrevText);
 
 				Element type = document.createElement("Type");
 				instance.appendChild(type);
-				Text bugTypeText = document.createTextNode(info
-						.getBugInstance().getType());
+				Text bugTypeText = document.createTextNode(info.getBugInstance().getType());
 				type.appendChild(bugTypeText);
 
 				Element rank = document.createElement("Rank");
 				instance.appendChild(rank);
-				Text rankText = document.createTextNode(String.valueOf(info
-						.getBugInstance().getBugRank()));
+				Text rankText = document.createTextNode(String.valueOf(info.getBugInstance()
+						.getBugRank()));
 				rank.appendChild(rankText);
 
 				Element point = document.createElement("Point");
 				instance.appendChild(point);
-				Text pointText = document.createTextNode(String
-						.valueOf(21 - info.getBugInstance().getBugRank()));
+				Text pointText = document.createTextNode(String.valueOf(21 - info.getBugInstance()
+						.getBugRank()));
 				point.appendChild(pointText);
 
 				Element priority = document.createElement("Priority");
 				instance.appendChild(priority);
-				Text priorityText = document.createTextNode(info
-						.getBugInstance().getPriorityString());
+				Text priorityText = document.createTextNode(info.getBugInstance()
+						.getPriorityString());
 				priority.appendChild(priorityText);
 
-				Element amender = document.createElement("Author");
+				Element amender = document.createElement("Amender");
 				instance.appendChild(amender);
 				Text amenderText = document.createTextNode(info.getAuthor());
 				amender.appendChild(amenderText);
@@ -112,32 +110,30 @@ public class XMLManager {
 
 				Element category = document.createElement("Category");
 				instance.appendChild(category);
-				Text categoryText = document.createTextNode(info
-						.getBugInstance().getBugPattern().getCategory());
+				Text categoryText = document.createTextNode(info.getBugInstance().getBugPattern()
+						.getCategory());
 				category.appendChild(categoryText);
 
 				Element abbrev = document.createElement("Abbreviation");
 				instance.appendChild(abbrev);
-				Text abbrevText = document.createTextNode(info.getBugInstance()
-						.getAbbrev());
+				Text abbrevText = document.createTextNode(info.getBugInstance().getAbbrev());
 				abbrev.appendChild(abbrevText);
 
 				Element type = document.createElement("Type");
 				instance.appendChild(type);
-				Text bugTypeText = document.createTextNode(info
-						.getBugInstance().getType());
+				Text bugTypeText = document.createTextNode(info.getBugInstance().getType());
 				type.appendChild(bugTypeText);
 
 				Element rank = document.createElement("Rank");
 				instance.appendChild(rank);
-				Text rankText = document.createTextNode(String.valueOf(info
-						.getBugInstance().getBugRank()));
+				Text rankText = document.createTextNode(String.valueOf(info.getBugInstance()
+						.getBugRank()));
 				rank.appendChild(rankText);
 
 				Element priority = document.createElement("Priority");
 				instance.appendChild(priority);
-				Text priorityText = document.createTextNode(info
-						.getBugInstance().getPriorityString());
+				Text priorityText = document.createTextNode(info.getBugInstance()
+						.getPriorityString());
 				priority.appendChild(priorityText);
 
 				Element author = document.createElement("Author");
@@ -149,17 +145,14 @@ public class XMLManager {
 			TransformerFactory tf = TransformerFactory.newInstance();
 
 			Transformer transformer = tf.newTransformer();
-			transformer
-					.setOutputProperty(
-							org.apache.xml.serializer.OutputPropertiesFactory.S_KEY_INDENT_AMOUNT,
-							"2");
+			transformer.setOutputProperty(
+					org.apache.xml.serializer.OutputPropertiesFactory.S_KEY_INDENT_AMOUNT, "2");
 			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
 			DOMSource source = new DOMSource(document);
-			File newXML = new File(Settings.getOutputDirectory()
-					+ "bugData.xml");
+			File newXML = new File("bugData.xml");
 			FileOutputStream os = new FileOutputStream(newXML);
 			StreamResult result = new StreamResult(os);
 			transformer.transform(source, result);

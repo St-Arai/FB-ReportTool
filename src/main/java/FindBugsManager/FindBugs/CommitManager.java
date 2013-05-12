@@ -26,6 +26,9 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepository;
 
+import FindBugsManager.Core.Execute;
+import FindBugsManager.Core.XMLManager;
+
 public class CommitManager extends GitManager implements ActionListener {
 
 	/**
@@ -82,9 +85,8 @@ public class CommitManager extends GitManager implements ActionListener {
 			System.out.println(commit.getAuthor());
 			System.out.println(commit.getCommitTime());
 			System.out.println(commit.getCommitMessage());
-			info[i] = "<html>" + commit.getCommitTime() + "    :    "
-					+ commit.getAuthor() + "<br/>" + commit.getCommitMessage()
-					+ "</html>";
+			info[i] = "<html>" + commit.getCommitTime() + "    :    " + commit.getAuthor()
+					+ "<br/>" + commit.getCommitMessage() + "</html>";
 			i++;
 		}
 		combo = new JComboBox<String>(info);
@@ -98,29 +100,33 @@ public class CommitManager extends GitManager implements ActionListener {
 
 		initCommitLogs();
 
-		JButton button = new JButton("Log in");
+		JButton button1 = new JButton("Log in");
 		JButton button2 = new JButton("Cancel");
 		JButton button3 = new JButton("Checkout");
 		JButton button4 = new JButton("Up to date");
 		JButton button5 = new JButton("Run FindBugs");
-		button.setActionCommand("1");
+		JButton button6 = new JButton("Make BugInfo File");
+		button1.setActionCommand("1");
 		button2.setActionCommand("2");
 		button3.setActionCommand("3");
 		button4.setActionCommand("4");
 		button5.setActionCommand("5");
-		button.addActionListener(this);
+		button6.setActionCommand("6");
+		button1.addActionListener(this);
 		button2.addActionListener(this);
 		button3.addActionListener(this);
 		button4.addActionListener(this);
 		button5.addActionListener(this);
+		button6.addActionListener(this);
 		combo.addActionListener(this);
 
-		panel.add(button);
+		panel.add(button1);
 		panel.add(button2);
 		panel.add(combo);
 		panel.add(button3);
 		panel.add(button4);
 		panel.add(button5);
+		panel.add(button6);
 
 		frame.add(panel, BorderLayout.CENTER);
 
@@ -134,7 +140,7 @@ public class CommitManager extends GitManager implements ActionListener {
 			int commandNum = Integer.parseInt(e.getActionCommand());
 			int index = combo.getSelectedIndex();
 			String selectedCommit = commitLog.get(index).getCommitName();
-
+			String selectedComment = commitLog.get(index).getCommitMessage().replaceAll("\n", "");
 			switch (commandNum) {
 				case 1 :
 					break;
@@ -161,8 +167,7 @@ public class CommitManager extends GitManager implements ActionListener {
 					} catch (GitAPIException e1) {
 						e1.printStackTrace();
 					}
-					System.out.println(commitLog.get(index).getCommitMessage()
-							.replaceAll("\n", ""));
+					System.out.println(selectedComment);
 					System.out.println(selectedCommit + "\n");
 					break;
 				case 4 :
@@ -191,15 +196,35 @@ public class CommitManager extends GitManager implements ActionListener {
 				case 5 :
 					Runtime rt = Runtime.getRuntime();
 					try {
-						rt.exec(new String[]{"cmd.exe", "/C", "findbugs",
-								"-textui", "-low", "-xml", "-output",
-								selectedCommit + ".xml",
-								"C:/Projects/workspace/TeamGamification/FBsample/bin/src/FBsample.class"});
+						rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low",
+								"-xml", "-output", selectedComment + ".xml",
+								"D:/Users/ALEXANDRITE/Projects/FBsample/bin/src/FBsample.class"});
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
 
 					break;
+				case 6 :
+					FindBugsManager manager = FindBugsManager.getInstance();
+					XMLManager xml = new XMLManager();
+					String current = commitLog.get(0).getCommitMessage().replaceAll("\n", "");
+					File bugOutput = new File(current + ".xml");
+
+					if (bugOutput.exists()) {
+						System.out.println("EXISTS");
+						manager.createBugInfoList(bugOutput);
+					}
+					String previous = commitLog.get(1).getCommitMessage().replaceAll("\n", "");
+
+					File preOutput = new File(previous + ".xml");
+					if (preOutput.exists()) {
+						System.out.println("EXISTS");
+						manager.createPreBugInfoList(preOutput);
+					}
+					Execute execute = new Execute(_file, _path);
+					execute.check();
+
+					xml.createXML(manager);
 				default :
 					break;
 			}

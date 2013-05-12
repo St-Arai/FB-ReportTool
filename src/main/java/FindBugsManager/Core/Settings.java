@@ -22,4 +22,8 @@ public class Settings {
 	public static String getOutputDirectory() {
 		return properties.getProperty("outputDirectory");
 	}
+
+	public static String getOutputDirectory2() {
+		return properties.getProperty("outputDirectory2");
+	}
 }

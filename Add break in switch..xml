@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<BugCollection version="2.0.2" sequence="0" timestamp="1368177134128" analysisTimestamp="1368177511308" release="">
+  <Project projectName="">
+    <Jar>D:/Users/ALEXANDRITE/Projects/FBsample/bin/src/FBsample.class</Jar>
+  </Project>
+  <BugInstance type="DM_STRING_TOSTRING" priority="3" abbrev="Dm" category="PERFORMANCE">
+    <Class classname="src.FBsample">
+      <SourceLine classname="src.FBsample" start="3" end="46" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Class>
+    <Method classname="src.FBsample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="src.FBsample" start="5" end="46" startBytecode="0" endBytecode="366" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Method>
+    <SourceLine classname="src.FBsample" start="15" end="15" startBytecode="27" endBytecode="27" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+  </BugInstance>
+  <BugInstance type="INT_BAD_REM_BY_1" priority="1" abbrev="INT" category="STYLE">
+    <Class classname="src.FBsample">
+      <SourceLine classname="src.FBsample" start="3" end="46" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Class>
+    <Method classname="src.FBsample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="src.FBsample" start="5" end="46" startBytecode="0" endBytecode="366" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Method>
+    <SourceLine classname="src.FBsample" start="9" end="9" startBytecode="9" endBytecode="9" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+  </BugInstance>
+  <BugInstance type="INT_VACUOUS_COMPARISON" priority="2" abbrev="INT" category="STYLE">
+    <Class classname="src.FBsample">
+      <SourceLine classname="src.FBsample" start="3" end="46" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Class>
+    <Method classname="src.FBsample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="src.FBsample" start="5" end="46" startBytecode="0" endBytecode="366" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Method>
+    <SourceLine classname="src.FBsample" start="36" end="36" startBytecode="113" endBytecode="113" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+  </BugInstance>
+  <BugInstance type="NP_ALWAYS_NULL" priority="1" abbrev="NP" category="CORRECTNESS">
+    <Class classname="src.FBsample">
+      <SourceLine classname="src.FBsample" start="3" end="46" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Class>
+    <Method classname="src.FBsample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="src.FBsample" start="5" end="46" startBytecode="0" endBytecode="366" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Method>
+    <LocalVariable name="str" register="1" pc="26" role="LOCAL_VARIABLE_VALUE_OF"/>
+    <SourceLine classname="src.FBsample" start="15" end="15" startBytecode="27" endBytecode="27" sourcefile="FBsample.java" sourcepath="src/FBsample.java" role="SOURCE_LINE_DEREF"/>
+  </BugInstance>
+  <BugInstance type="NP_LOAD_OF_KNOWN_NULL_VALUE" priority="3" abbrev="NP" category="STYLE">
+    <Class classname="src.FBsample">
+      <SourceLine classname="src.FBsample" start="3" end="46" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Class>
+    <Method classname="src.FBsample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="src.FBsample" start="5" end="46" startBytecode="0" endBytecode="63" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Method>
+    <SourceLine classname="src.FBsample" start="11" end="11" startBytecode="11" endBytecode="11" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    <SourceLine classname="src.FBsample" start="15" end="15" startBytecode="26" endBytecode="26" sourcefile="FBsample.java" sourcepath="src/FBsample.java" role="SOURCE_LINE_ANOTHER_INSTANCE"/>
+  </BugInstance>
+  <BugInstance type="NP_NULL_INSTANCEOF" priority="2" abbrev="NP" category="CORRECTNESS">
+    <Class classname="src.FBsample">
+      <SourceLine classname="src.FBsample" start="3" end="46" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Class>
+    <Method classname="src.FBsample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="src.FBsample" start="5" end="46" startBytecode="0" endBytecode="63" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Method>
+    <Type descriptor="Ljava/lang/String;">
+      <SourceLine classname="java.lang.String"/>
+    </Type>
+    <SourceLine classname="src.FBsample" start="11" end="11" startBytecode="12" endBytecode="12" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+  </BugInstance>
+  <BugInstance type="RV_RETURN_VALUE_IGNORED" priority="3" abbrev="RV" category="CORRECTNESS">
+    <Class classname="src.FBsample">
+      <SourceLine classname="src.FBsample" start="3" end="46" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Class>
+    <Method classname="src.FBsample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="src.FBsample" start="5" end="46" startBytecode="0" endBytecode="366" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Method>
+    <Method classname="java.lang.String" name="toString" signature="()Ljava/lang/String;" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.String"/>
+    </Method>
+    <SourceLine classname="src.FBsample" start="15" end="15" startBytecode="27" endBytecode="27" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+  </BugInstance>
+  <BugInstance type="SIO_SUPERFLUOUS_INSTANCEOF" priority="3" abbrev="SIO" category="CORRECTNESS">
+    <Class classname="src.FBsample">
+      <SourceLine classname="src.FBsample" start="3" end="46" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Class>
+    <Method classname="src.FBsample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="src.FBsample" start="5" end="46" startBytecode="0" endBytecode="366" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+    </Method>
+    <SourceLine classname="src.FBsample" start="11" end="11" startBytecode="12" endBytecode="12" sourcefile="FBsample.java" sourcepath="src/FBsample.java"/>
+  </BugInstance>
+  <Errors errors="0" missingClasses="0"></Errors>
+  <FindBugsSummary timestamp="Fri, 10 May 2013 18:12:14 +0900" total_classes="1" referenced_classes="13" total_bugs="8" total_size="29" num_packages="1" vm_version="23.21-b01" cpu_seconds="4.82" clock_seconds="1.65" peak_mbytes="92.29" alloc_mbytes="682.69" gc_seconds="0.02" priority_3="4" priority_2="2" priority_1="2">
+    <PackageStats package="src" total_bugs="8" total_types="1" total_size="29" priority_3="4" priority_2="2" priority_1="2">
+      <ClassStats class="src.FBsample" sourceFile="FBsample.java" interface="false" size="29" bugs="8" priority_3="4" priority_2="2" priority_1="2"/>
+    </PackageStats>
+    <FindBugsProfile>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="341" invocations="330" avgMicrosecondsPerInvocation="1034" maxMicrosecondsPerInvocation="18014" standardDeviationMircosecondsPerInvocation="1949"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="151" invocations="13" avgMicrosecondsPerInvocation="11624" maxMicrosecondsPerInvocation="48828" standardDeviationMircosecondsPerInvocation="15717"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.impl.ZipCodeBaseFactory" totalMilliseconds="134" invocations="16" avgMicrosecondsPerInvocation="8381" maxMicrosecondsPerInvocation="131917" standardDeviationMircosecondsPerInvocation="31896"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="72" invocations="13" avgMicrosecondsPerInvocation="5586" maxMicrosecondsPerInvocation="18829" standardDeviationMircosecondsPerInvocation="5882"/>
+      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="51" invocations="299" avgMicrosecondsPerInvocation="173" maxMicrosecondsPerInvocation="2031" standardDeviationMircosecondsPerInvocation="312"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="48" invocations="2" avgMicrosecondsPerInvocation="24313" maxMicrosecondsPerInvocation="47290" standardDeviationMircosecondsPerInvocation="22976"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="44" invocations="54" avgMicrosecondsPerInvocation="825" maxMicrosecondsPerInvocation="2764" standardDeviationMircosecondsPerInvocation="629"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="39" invocations="13" avgMicrosecondsPerInvocation="3073" maxMicrosecondsPerInvocation="16111" standardDeviationMircosecondsPerInvocation="4370"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="35" invocations="13" avgMicrosecondsPerInvocation="2732" maxMicrosecondsPerInvocation="10566" standardDeviationMircosecondsPerInvocation="3060"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="30" invocations="17" avgMicrosecondsPerInvocation="1800" maxMicrosecondsPerInvocation="13412" standardDeviationMircosecondsPerInvocation="3187"/>
+    </FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History></History>
+</BugCollection>
