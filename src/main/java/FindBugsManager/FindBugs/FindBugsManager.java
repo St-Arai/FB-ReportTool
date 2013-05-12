@@ -134,10 +134,11 @@ public class FindBugsManager {
 		}
 
 		if (!editedBugList.isEmpty()) {
-			int preBugStart, preBugEnd;
+			int preBugStart = 0;
+			// int preBugEnd = 0;
 			for (BugInfo bugInfo : editedBugList) {
 				preBugStart = bugInfo.getStartLine();
-				preBugEnd = bugInfo.getEndLine();
+				// preBugEnd = bugInfo.getEndLine();
 				for (BugInfo info : infoList) {
 					if (info.getPreStartLine() <= preBugStart
 							&& preBugStart <= info.getPreEndLine()) {

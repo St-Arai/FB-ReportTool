@@ -40,13 +40,15 @@ public class CommitManager extends GitManager implements ActionListener {
 
 	private JFrame frame = new JFrame();
 	private JPanel panel = new JPanel();
+
 	private JComboBox<String> checkoutBranches = new JComboBox<String>();
 	private JComboBox<String> targetBugFile = new JComboBox<String>();
 
-	private Repository repos = null;
+	private transient Repository repos = null;
 
-	private final File cmp = new File("../bugOutput/Comparisons");
 	private final File bugs = new File("../bugOutput/FindBugsFiles");
+
+	private int bugsIndex = 0;
 
 	public CommitManager(File file, String path) {
 		super(file, path);
@@ -161,7 +163,7 @@ public class CommitManager extends GitManager implements ActionListener {
 			String selectedCommit = commitLog.get(index).getCommitName();
 			String selectedComment = commitLog.get(index).getCommitMessage().replaceAll("\n", "");
 
-			int bugsIndex = targetBugFile.getSelectedIndex();
+			bugsIndex = targetBugFile.getSelectedIndex();
 
 			switch (commandNum) {
 				case 1 :
@@ -191,6 +193,7 @@ public class CommitManager extends GitManager implements ActionListener {
 					}
 					System.out.println(selectedComment);
 					System.out.println(selectedCommit + "\n");
+
 					break;
 				case 4 :
 					try {
@@ -235,35 +238,26 @@ public class CommitManager extends GitManager implements ActionListener {
 					File currentOutput = new File(bugs, current + ".xml");
 
 					if (currentOutput.exists()) {
-						System.out.println(current);
 						manager.createBugInfoList(currentOutput);
 					} else {
 						//
-						System.out.println(current);
 					}
 
-					// String target = targetBugFile.getItemAt(bugsIndex);
-					// File targetOutput = new File(bugs, target);
-					//
-					// if (targetOutput.exists()) {
-					// System.out.println(target);
-					// manager.createBugInfoList(targetOutput);
-					// } else {
-					// //
-					// System.out.println(target);
-					// }
+					String target = targetBugFile.getItemAt(bugsIndex);
+					File targetOutput = new File(bugs, target);
 
-					String previous = commitLog.get(1).getCommitMessage().replaceAll("\n", "");
-
-					File preOutput = new File(previous + ".xml");
-					if (preOutput.exists()) {
-						System.out.println("EXISTS");
-						manager.createPreBugInfoList(preOutput);
+					if (targetOutput.exists()) {
+						manager.createPreBugInfoList(targetOutput);
+					} else {
+						//
 					}
+
 					Execute execute = new Execute(_file, _path);
 					execute.check();
 
 					xml.createXML(manager);
+
+					break;
 				default :
 					break;
 			}

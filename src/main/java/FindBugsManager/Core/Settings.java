@@ -9,21 +9,28 @@ public class Settings {
 	private static Properties properties = new Properties();
 
 	static {
+		FileInputStream fileInput = null;
 		try {
-			properties.load(new FileInputStream("settings.properties"));
+			fileInput = new FileInputStream("settings.properties");
+			properties.load(fileInput);
 		} catch (IOException e2) {
 			e2.printStackTrace();
+		} finally {
+			if (fileInput != null) {
+				try {
+					fileInput.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
 	private Settings() {
+
 	}
 
 	public static String getOutputDirectory() {
 		return properties.getProperty("outputDirectory");
-	}
-
-	public static String getOutputDirectory2() {
-		return properties.getProperty("outputDirectory2");
 	}
 }
