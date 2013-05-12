@@ -1,25 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project>
   <FixedBugs>
-    <BugNumber>2</BugNumber>
-    <BugInstance>
-      <Category>STYLE</Category>
-      <Abbreviation>DLS</Abbreviation>
-      <Type>DLS_DEAD_LOCAL_STORE</Type>
-      <Rank>17</Rank>
-      <Point>4</Point>
-      <Priority>優先度(中)</Priority>
-      <Amender>Satoshi Arai</Amender>
-    </BugInstance>
-    <BugInstance>
-      <Category>CORRECTNESS</Category>
-      <Abbreviation>QBA</Abbreviation>
-      <Type>QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT</Type>
-      <Rank>5</Rank>
-      <Point>16</Point>
-      <Priority>優先度(高)</Priority>
-      <Amender>Satoshi Arai</Amender>
-    </BugInstance>
+    <BugNumber>0</BugNumber>
   </FixedBugs>
   <PreviousBugs>
     <BugNumber>8</BugNumber>
