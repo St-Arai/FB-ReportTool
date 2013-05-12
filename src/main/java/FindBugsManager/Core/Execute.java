@@ -15,19 +15,26 @@ public class Execute {
 	private File gitFile = null;
 	private String filePath = null;
 
+	private FindBugsManager manager = null;
+
 	public Execute(File file, String path) {
 		this.gitFile = file;
 		this.filePath = path;
+		this.manager = FindBugsManager.getInstance();
 	}
 
 	public void run() {
-		FindBugsManager manager = FindBugsManager.getInstance();
-
 		commit = new CommitManager(gitFile, filePath);
 		diff = new DiffManager(gitFile, filePath);
 		blame = new BlameManager(gitFile, filePath);
 		manager.checkEditedBugs(diff, blame);
 
 		commit.display();
+	}
+
+	public void check() {
+		diff = new DiffManager(gitFile, filePath);
+		blame = new BlameManager(gitFile, filePath);
+		manager.checkEditedBugs(diff, blame);
 	}
 }
