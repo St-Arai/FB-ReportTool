@@ -29,7 +29,7 @@ public class XMLManager {
 
 	}
 
-	private final File cmp = new File("../bugOutput/Comparisons");
+	private final File destinationRepository = new File("../bugOutput/Comparisons");
 
 	public void createXML(FindBugsManager manager) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -154,7 +154,7 @@ public class XMLManager {
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
 			DOMSource source = new DOMSource(document);
-			File newXML = new File(cmp, "bugData.xml");
+			File newXML = new File(destinationRepository, "bugData.xml");
 			FileOutputStream os = new FileOutputStream(newXML);
 			StreamResult result = new StreamResult(os);
 			transformer.transform(source, result);

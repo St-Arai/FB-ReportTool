@@ -21,10 +21,10 @@ public class BlameManager extends GitManager {
 	 */
 	private static final long serialVersionUID = 5815629130134748289L;
 
-	private BlameResult result = null;
-	private ArrayList<BugInfo> infoList = null;
+	private transient BlameResult result = null;
+	private transient ArrayList<BugInfo> infoList = null;
 
-	private FindBugsManager manager = null;
+	private transient FindBugsManager manager = null;
 
 	public BlameManager(File file, String path) {
 		super(file, path);
@@ -53,6 +53,7 @@ public class BlameManager extends GitManager {
 		}
 	}
 
+	@Override
 	public ArrayList<String> getAuthors(int startLine, int endLine) {
 		ArrayList<String> authors = new ArrayList<String>();
 		for (int i = startLine; i <= endLine; i++) {

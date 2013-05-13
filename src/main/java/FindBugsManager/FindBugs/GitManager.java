@@ -1,6 +1,7 @@
 package FindBugsManager.FindBugs;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
@@ -19,10 +20,6 @@ public class GitManager extends JFrame {
 		this._path = path;
 	}
 
-	public void display() {
-		System.out.println("Here is GitManager class.");
-	}
-
 	public File getFile() {
 		return _file;
 	}
@@ -30,4 +27,13 @@ public class GitManager extends JFrame {
 	public String getFilePath() {
 		return _path;
 	}
+
+	public ArrayList<String> getAuthors(int startLine, int endLine) {
+		return null;
+	}
+
+	public void display() {
+		System.out.println("GitManager.");
+	}
+
 }
