@@ -123,7 +123,7 @@ public class FindBugsManager {
 		return preInfoList.size();
 	}
 
-	public void checkEditedBugs(DiffManager diff, BlameManager blame) {
+	public void checkEditedBugs(GitManager diff, GitManager blame) {
 		editedBugList = new ArrayList<BugInfo>();
 
 		for (BugInfo bugInfo : preInfoList) {
