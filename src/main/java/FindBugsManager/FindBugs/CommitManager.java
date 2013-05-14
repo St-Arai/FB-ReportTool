@@ -92,7 +92,7 @@ public class CommitManager extends GitManager {
 		int i = 0;
 
 		for (File file : bugFiles) {
-			info[i] = file.getName();
+			info[i] = file.getName().replace(".xml", "");
 			i++;
 		}
 		targetBugFile = new JComboBox<String>(info);

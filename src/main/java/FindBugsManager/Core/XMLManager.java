@@ -95,6 +95,12 @@ public class XMLManager {
 						.getPriorityString());
 				priority.appendChild(priorityText);
 
+				Element line = document.createElement("Line");
+				instance.appendChild(line);
+				Text lineText = document.createTextNode(String.valueOf(info.getStartLine()) + " ~ "
+						+ String.valueOf(info.getEndLine()));
+				line.appendChild(lineText);
+
 				Element amender = document.createElement("Amender");
 				instance.appendChild(amender);
 				Text amenderText = document.createTextNode(info.getAuthor());
@@ -137,6 +143,12 @@ public class XMLManager {
 				Text priorityText = document.createTextNode(info.getBugInstance()
 						.getPriorityString());
 				priority.appendChild(priorityText);
+
+				Element line = document.createElement("Line");
+				instance.appendChild(line);
+				Text lineText = document.createTextNode(String.valueOf(info.getStartLine()) + " ~ "
+						+ String.valueOf(info.getEndLine()));
+				line.appendChild(lineText);
 
 				Element author = document.createElement("Author");
 				instance.appendChild(author);

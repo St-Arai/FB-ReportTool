@@ -6,7 +6,7 @@ import FindBugsManager.FindBugs.BlameManager;
 import FindBugsManager.FindBugs.DiffManager;
 import FindBugsManager.FindBugs.FindBugsManager;
 import FindBugsManager.FindBugs.GitManager;
-import FindBugsManager.UI.GitScanning;
+import FindBugsManager.UI.LoginPage;
 
 public class Execute {
 	private GitManager blame = null;
@@ -28,7 +28,7 @@ public class Execute {
 		blame = new BlameManager(gitFile, filePath);
 		manager.checkEditedBugs(diff, blame);
 
-		new GitScanning();
+		new LoginPage();
 	}
 
 	public void check() {
