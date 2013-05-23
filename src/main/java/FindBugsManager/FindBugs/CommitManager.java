@@ -14,29 +14,25 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepository;
 
-public class CommitManager extends GitManager {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class CommitManager {
 
 	private ArrayList<CommitInfo> commitLog = new ArrayList<CommitInfo>();
 
 	private JComboBox<String> checkoutBranches = new JComboBox<String>();
 	private JComboBox<String> targetBugFile = new JComboBox<String>();
 
-	private transient Repository repos = null;
-
 	private static final File bugsRepository = new File("../bugOutput/FindBugsFiles");
 
-	public CommitManager(File file, String path) {
-		super(file, path);
+	private File _file = null;
 
-		findCommiter();
+	public CommitManager(File file) {
+		_file = file;
+
+		// findCommiter();
 	}
 
-	private void findCommiter() {
+	public void findCommiter() {
+		Repository repos = null;
 		try {
 			repos = new FileRepository(_file);
 			Git git = new Git(repos);
@@ -58,20 +54,7 @@ public class CommitManager extends GitManager {
 		}
 	}
 
-	public ArrayList<CommitInfo> getCommitLog() {
-		return commitLog;
-	}
-
-	public JComboBox<String> getBranchList() {
-		return checkoutBranches;
-	}
-
-	public JComboBox<String> getTargetBugFileList() {
-		return targetBugFile;
-	}
-
-	public void initCommitLogs() {
-
+	public void setCommitLogs() {
 		String[] info = new String[commitLog.size()];
 		int i = 0;
 		for (CommitInfo commit : commitLog) {
@@ -98,7 +81,18 @@ public class CommitManager extends GitManager {
 		targetBugFile = new JComboBox<String>(info);
 	}
 
-	@Override
+	public ArrayList<CommitInfo> getCommitLog() {
+		return commitLog;
+	}
+
+	public JComboBox<String> getBranchList() {
+		return checkoutBranches;
+	}
+
+	public JComboBox<String> getTargetBugFileList() {
+		return targetBugFile;
+	}
+
 	public void display() {
 		System.out.println("CommitManager.");
 	}

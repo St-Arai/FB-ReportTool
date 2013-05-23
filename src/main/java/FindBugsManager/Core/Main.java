@@ -2,6 +2,10 @@ package FindBugsManager.Core;
 
 import java.io.File;
 
+import javax.swing.JFrame;
+
+import FindBugsManager.UI.LoginPage;
+
 public class Main {
 
 	// String bugOutputPath = Settings.getOutputDirectory();
@@ -15,8 +19,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		Execute execute = new Execute(gitFile, filePath);
-		execute.run();
+		new LoginPage(new JFrame());
 	}
 
 	public static File getGitFile() {

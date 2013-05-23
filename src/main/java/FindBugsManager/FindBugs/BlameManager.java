@@ -12,28 +12,24 @@ import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
 
-import edu.umd.cs.findbugs.BugInstance;
+public class BlameManager {
 
-public class BlameManager extends GitManager {
+	private FindBugsManager manager = FindBugsManager.getInstance();
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5815629130134748289L;
+	private BlameResult result = null;
+	private transient ArrayList<BugInfo> infoList = manager.getBugInfoList();
 
-	private transient BlameResult result = null;
-	private transient ArrayList<BugInfo> infoList = null;
-
-	private transient FindBugsManager manager = null;
+	private File _file = null;
+	private String _path = null;
 
 	public BlameManager(File file, String path) {
-		super(file, path);
-		this.manager = FindBugsManager.getInstance();
-		this.infoList = manager.getBugInfoList();
-		blameDriver();
+		_file = file;
+		_path = path;
+
+		// blameDriver();
 	}
 
-	private void blameDriver() {
+	public void blameDriver() {
 		Repository repos;
 		try {
 			repos = new FileRepository(_file);
@@ -42,8 +38,6 @@ public class BlameManager extends GitManager {
 			BlameCommand blame = git.blame();
 			blame.setFilePath(_path);
 			result = blame.call();
-			setAuthor();
-
 		} catch (NoHeadException e) {
 			e.printStackTrace();
 		} catch (GitAPIException e) {
@@ -51,9 +45,10 @@ public class BlameManager extends GitManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		setAuthor();
 	}
 
-	@Override
 	public ArrayList<String> getAuthors(int startLine, int endLine) {
 		ArrayList<String> authors = new ArrayList<String>();
 		for (int i = startLine; i <= endLine; i++) {
@@ -77,20 +72,8 @@ public class BlameManager extends GitManager {
 		}
 	}
 
-	@Override
 	public void display() {
-		BugInstance instance;
-		try {
-			for (BugInfo info : infoList) {
-				instance = info.getBugInstance();
-				manager.displayPatternInfo(instance);
-				System.out.println("Author : " + info.getAuthor());
-				System.out.println("Line : " + info.getStartLine());
-				System.out.println();
-			}
-		} catch (IndexOutOfBoundsException e) {
-			e.printStackTrace();
-		}
+		System.out.println("BlameManager.");
 	}
 
 }

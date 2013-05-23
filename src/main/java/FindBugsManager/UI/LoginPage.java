@@ -9,19 +9,17 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class LoginPage extends JFrame implements ActionListener {
+public class LoginPage implements ActionListener {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
+	private JFrame _frame = new JFrame();
 	private JPanel panel = new JPanel();
 
-	public LoginPage() {
-		setSize(new Dimension(1000, 750));
-		setTitle("");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	public LoginPage(JFrame frame) {
+		_frame = frame;
+
+		_frame.setSize(new Dimension(1000, 750));
+		_frame.setTitle("");
+		_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JButton button = new JButton("Login");
 		JButton button2 = new JButton("Exit");
@@ -33,9 +31,10 @@ public class LoginPage extends JFrame implements ActionListener {
 
 		panel.add(button);
 		panel.add(button2);
-		add(panel, BorderLayout.CENTER);
 
-		setVisible(true);
+		_frame.add(panel, BorderLayout.CENTER);
+
+		_frame.setVisible(true);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -44,12 +43,12 @@ public class LoginPage extends JFrame implements ActionListener {
 
 		switch (command) {
 			case 1 :
-				getContentPane().removeAll();
-				new GitScanning(this);
+				_frame.getContentPane().removeAll();
+				new GitScanning(_frame);
 				break;
 			case 2 :
-				dispose();
-				setVisible(false);
+				_frame.dispose();
+				_frame.setVisible(false);
 				break;
 			default :
 				System.out.println("default.");

@@ -7,7 +7,7 @@ public class CommitInfo {
 	private String _commit = null;
 	private String _author = null;
 	private int _time = 0;
-	private Date _date = null;
+	private String _date = null;
 	private String _message = null;
 
 	public CommitInfo(String commit, String author, int time, String message) {
@@ -17,7 +17,7 @@ public class CommitInfo {
 		_message = message;
 
 		long longtime = (long) _time * 1000;
-		_date = new Date(longtime);
+		_date = new Date(longtime).toString();
 	}
 
 	public String getCommitName() {
@@ -28,7 +28,7 @@ public class CommitInfo {
 		return _author;
 	}
 
-	public Date getCommitTime() {
+	public String getCommitTime() {
 		return _date;
 	}
 

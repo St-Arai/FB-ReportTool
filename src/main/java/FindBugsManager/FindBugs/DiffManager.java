@@ -11,28 +11,26 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.gitective.core.BlobUtils;
 
-public class DiffManager extends GitManager {
+public class DiffManager {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	private transient FindBugsManager manager = FindBugsManager.getInstance();
 
-	private static Collection<Edit> _edits = null;
-	private transient ArrayList<BugInfo> infoList = null;
-
-	private transient FindBugsManager manager = null;
+	private Collection<Edit> edits = null;
+	private transient ArrayList<BugInfo> preInfoList = manager.getPreBugInfoList();;
 
 	private final static String branchName = "master";
 
+	private File _file = null;
+	private String _path = null;
+
 	public DiffManager(File file, String path) {
-		super(file, path);
-		this.manager = FindBugsManager.getInstance();
-		this.infoList = manager.getPreBugInfoList();
-		diffDriver();
+		_file = file;
+		_path = path;
+
+		// diffDriver();
 	}
 
-	private void diffDriver() {
+	public void diffDriver() {
 		Repository repo = null;
 		try {
 			repo = new FileRepository(_file);
@@ -43,37 +41,38 @@ public class DiffManager extends GitManager {
 		ObjectId current = BlobUtils.getId(repo, branchName, _path);
 		ObjectId previous = BlobUtils.getId(repo, branchName + "~1", _path);
 
-		_edits = BlobUtils.diff(repo, previous, current);
+		edits = BlobUtils.diff(repo, previous, current);
 
 		setPreviousInfo();
 	}
 
 	private void setPreviousInfo() {
-		int bugLine = 0;
+		int preBugLine = 0;
 		int editStartLine = 0;
 		int editEndLine = 0;
 
-		if (_edits != null) {
-			for (BugInfo info : infoList) {
-				for (Edit edit : _edits) {
-					bugLine = info.getStartLine();
+		if (edits != null) {
+			for (BugInfo preInfo : preInfoList) {
+				for (Edit edit : edits) {
+					preBugLine = preInfo.getStartLine();
 					editStartLine = edit.getBeginA();
 					editEndLine = edit.getEndA();
-					if (editStartLine <= bugLine && bugLine <= editEndLine) {
-						info.setEditType(changeEnumType(edit.getType()));
-						info.setPreStartLine(edit.getBeginB());
-						info.setPreEndLine(edit.getEndB());
+					if (editStartLine <= preBugLine && preBugLine <= editEndLine) {
+						preInfo.setEditType(changeEnumType(edit.getType()));
+						preInfo.setEditedStartLine(edit.getBeginB());
+						preInfo.setEditedEndLine(edit.getEndB());
 						break;
 					} else {
-						info.setEditType(EditType.NO_CHANGE);
+						preInfo.setEditType(EditType.NO_CHANGE);
 					}
 				}
+				System.out.println(preInfo.getBugInstance().getBugPattern().getType());
+				System.out.println(preInfo.getEditType() + "\n");
 			}
 		} else {
 			System.out.println("No Edits...");
 		}
 	}
-
 	private EditType changeEnumType(Edit.Type type) {
 		EditType changedtype = null;
 		switch (type) {
@@ -96,13 +95,12 @@ public class DiffManager extends GitManager {
 	}
 
 	public Collection<Edit> getEditList() {
-		return _edits;
+		return edits;
 	}
 
-	@Override
 	public void display() {
-		if (_edits != null) {
-			for (Edit edit : _edits) {
+		if (edits != null) {
+			for (Edit edit : edits) {
 				System.out.println(edit.getType());
 				System.out.println(edit.getBeginA());
 				System.out.println(edit.getEndA());

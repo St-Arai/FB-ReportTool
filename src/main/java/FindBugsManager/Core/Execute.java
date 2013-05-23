@@ -5,35 +5,29 @@ import java.io.File;
 import FindBugsManager.FindBugs.BlameManager;
 import FindBugsManager.FindBugs.DiffManager;
 import FindBugsManager.FindBugs.FindBugsManager;
-import FindBugsManager.FindBugs.GitManager;
-import FindBugsManager.UI.LoginPage;
 
 public class Execute {
-	private GitManager blame = null;
-	private GitManager diff = null;
+	private FindBugsManager manager = FindBugsManager.getInstance();
 
-	private File gitFile = null;
-	private String filePath = null;
+	private BlameManager blame = null;
+	private DiffManager diff = null;
 
-	private FindBugsManager manager = null;
+	private File _gitFile = null;
+	private String _filePath = null;
 
 	public Execute(File file, String path) {
-		this.gitFile = file;
-		this.filePath = path;
-		this.manager = FindBugsManager.getInstance();
+		_gitFile = file;
+		_filePath = path;
 	}
 
-	public void run() {
-		diff = new DiffManager(gitFile, filePath);
-		blame = new BlameManager(gitFile, filePath);
-		manager.checkEditedBugs(diff, blame);
+	public void checkFixerName() {
+		diff = new DiffManager(_gitFile, _filePath);
+		blame = new BlameManager(_gitFile, _filePath);
 
-		new LoginPage();
-	}
+		diff.diffDriver();
+		blame.blameDriver();
 
-	public void check() {
-		diff = new DiffManager(gitFile, filePath);
-		blame = new BlameManager(gitFile, filePath);
 		manager.checkEditedBugs(diff, blame);
+		// diff.display();
 	}
 }
