@@ -4,13 +4,12 @@ import java.io.File;
 
 import javax.swing.JFrame;
 
-import FindBugsManager.UI.LoginPage;
+import FindBugsManager.UI.Login;
 
 public class Main {
 
-	// String bugOutputPath = Settings.getOutputDirectory();
-	// private static final File gitFile = new File("C:/Projects/workspace/FBsample/.git");
-	private static final File gitFile = new File("D:/Users/ALEXANDRITE/Projects/FBsample/.git");
+	private static final File gitFile = new File("../FBsample/.git");
+	// private static final File gitFile = new File("D:/Users/ALEXANDRITE/Projects/FBsample/.git");
 
 	private static final String filePath = "src/src/FBsample.java";
 
@@ -19,7 +18,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		new LoginPage(new JFrame());
+		new Login(new JFrame());
 	}
 
 	public static File getGitFile() {

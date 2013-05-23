@@ -14,21 +14,22 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepository;
 
+import FindBugsManager.Core.Settings;
+
 public class CommitManager {
 
-	private ArrayList<CommitInfo> commitLog = new ArrayList<CommitInfo>();
+	private transient ArrayList<CommitInfo> commitLog = new ArrayList<CommitInfo>();
 
 	private JComboBox<String> checkoutBranches = new JComboBox<String>();
 	private JComboBox<String> targetBugFile = new JComboBox<String>();
 
-	private static final File bugsRepository = new File("../bugOutput/FindBugsFiles");
+	private String bugDataPath = Settings.getBugDataStorePath();
+	private final File bugDataDirectory = new File(bugDataPath);
 
 	private File _file = null;
 
 	public CommitManager(File file) {
 		_file = file;
-
-		// findCommiter();
 	}
 
 	public void findCommiter() {
@@ -70,7 +71,7 @@ public class CommitManager {
 	}
 
 	public void initBugFileList() {
-		File[] bugFiles = bugsRepository.listFiles();
+		File[] bugFiles = bugDataDirectory.listFiles();
 		String[] info = new String[bugFiles.length];
 		int i = 0;
 

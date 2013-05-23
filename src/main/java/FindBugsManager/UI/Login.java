@@ -9,13 +9,13 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class LoginPage implements ActionListener {
+public class Login implements ActionListener {
 
 	private JFrame _frame = new JFrame();
 	private JPanel panel = new JPanel();
 
-	public LoginPage(JFrame frame) {
-		_frame = frame;
+	public Login(JFrame mainFrame) {
+		_frame = mainFrame;
 
 		_frame.setSize(new Dimension(1000, 750));
 		_frame.setTitle("");

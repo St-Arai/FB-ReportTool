@@ -24,6 +24,7 @@ import org.eclipse.jgit.storage.file.FileRepository;
 
 import FindBugsManager.Core.Execute;
 import FindBugsManager.Core.Main;
+import FindBugsManager.Core.Settings;
 import FindBugsManager.Core.XMLManager;
 import FindBugsManager.FindBugs.CommitInfo;
 import FindBugsManager.FindBugs.CommitManager;
@@ -35,6 +36,7 @@ public class GitScanning implements ActionListener {
 
 	private File _file = Main.getGitFile();
 	private String _path = Main.getFilePath();
+
 	private CommitManager commit = new CommitManager(_file);;
 
 	private JFrame _frame = null;
@@ -45,22 +47,27 @@ public class GitScanning implements ActionListener {
 
 	private transient Repository repos = null;
 
-	private static final File bugsRepository = new File("../bugOutput/FindBugsFiles");
-	private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/FBsample/bin/src/FBsample.class";
-	// private static final String targetPath =
-	// "C:/Projects/workspace/FBsample/bin/src/FBsample.class";
+	private String bugDataPath = Settings.getBugDataStorePath();
+	private final File bugDataDirectory = new File(bugDataPath);
 
-	public GitScanning(JFrame frame) {
-		_frame = frame;
+	// private static final String targetPath =
+	// "D:/Users/ALEXANDRITE/Projects/FBsample/bin/src/FBsample.class";
+	private static final String targetPath = "../FBsample/bin/src/FBsample.class";
+
+	public GitScanning(JFrame mainFrame) {
+		_frame = mainFrame;
 
 		initCommitInfo();
 
 		JButton button1 = new JButton("Run FindBugs");
 		JButton button2 = new JButton("Make BugInfo File");
+		JButton button3 = new JButton("Show Result");
 		button1.setActionCommand("1");
 		button2.setActionCommand("2");
+		button3.setActionCommand("3");
 		button1.addActionListener(this);
 		button2.addActionListener(this);
+		button3.addActionListener(this);
 		_checkoutBranches.addActionListener(this);
 		_targetBranches.addActionListener(this);
 
@@ -68,6 +75,7 @@ public class GitScanning implements ActionListener {
 		panel.add(button1);
 		panel.add(button2);
 		panel.add(_targetBranches);
+		panel.add(button3);
 
 		_frame.add(panel, BorderLayout.CENTER);
 
@@ -108,6 +116,9 @@ public class GitScanning implements ActionListener {
 					outputBugsResult(index);
 					backtoLatestRevision();
 					break;
+				case 3 :
+					new PersonalDisplay(new JFrame());
+					break;
 				default :
 					break;
 			}
@@ -127,7 +138,7 @@ public class GitScanning implements ActionListener {
 		XMLManager xml = new XMLManager();
 
 		String current = _commitLog.get(index).getCommitMessage().replaceAll("\n", "");
-		File currentOutput = new File(bugsRepository, current + ".xml");
+		File currentOutput = new File(bugDataDirectory, current + ".xml");
 
 		if (!(currentOutput.exists())) {
 			runFindbugs(current);
@@ -135,7 +146,7 @@ public class GitScanning implements ActionListener {
 		manager.createBugInfoList(currentOutput);
 
 		String target = _commitLog.get(index + 1).getCommitMessage().replaceAll("\n", "");;
-		File targetOutput = new File(bugsRepository, target + ".xml");
+		File targetOutput = new File(bugDataDirectory, target + ".xml");
 
 		if (!(targetOutput.exists())) {
 			System.out.println("Not Found a previous file...");
@@ -149,25 +160,12 @@ public class GitScanning implements ActionListener {
 		xml.createXML(manager);
 	}
 
-	private void runFindbugs(String selectedComment) {
-		Runtime rt = Runtime.getRuntime();
-		Process p = null;
-		try {
-			p = rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low", "-xml",
-					"-output", selectedComment + ".xml", targetPath}, null, bugsRepository);
-			p.waitFor();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	private void backtoLatestRevision() {
+	private void checkoutCommand(String selectedCommit) {
 		try {
 			repos = new FileRepository(_file);
 			Git git = new Git(repos);
 			CheckoutCommand check = git.checkout();
-			check.setName("master");
+			check.setName(selectedCommit);
 			check.call();
 
 		} catch (IOException e1) {
@@ -185,12 +183,26 @@ public class GitScanning implements ActionListener {
 		}
 	}
 
-	private void checkoutCommand(String selectedCommit) {
+	private void runFindbugs(String selectedComment) {
+		Runtime rt = Runtime.getRuntime();
+		Process p = null;
+		try {
+			p = rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low", "-xml",
+					"-output", selectedComment + ".xml", targetPath}, null, bugDataDirectory);
+			p.waitFor();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void backtoLatestRevision() {
 		try {
 			repos = new FileRepository(_file);
 			Git git = new Git(repos);
 			CheckoutCommand check = git.checkout();
-			check.setName(selectedCommit);
+			check.setName("master");
 			check.call();
 
 		} catch (IOException e1) {

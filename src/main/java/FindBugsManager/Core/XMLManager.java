@@ -29,7 +29,8 @@ public class XMLManager {
 
 	}
 
-	private final File destinationRepository = new File("../bugOutput/Comparisons");
+	private String bugOutputPath = Settings.getOutputPath();
+	private final File bugOutputDirectory = new File(bugOutputPath);
 
 	public void createXML(FindBugsManager manager) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -91,8 +92,15 @@ public class XMLManager {
 
 				Element priority = document.createElement("Priority");
 				instance.appendChild(priority);
-				Text priorityText = document.createTextNode(info.getBugInstance()
-						.getPriorityString());
+				Text priorityText = null;
+				String priorityString = info.getBugInstance().getPriorityString();
+				if (priorityString.equals("優先度(高)")) {
+					priorityText = document.createTextNode("High");
+				} else if (priorityString.equals("優先度(中)")) {
+					priorityText = document.createTextNode("Middle");
+				} else {
+					priorityText = document.createTextNode("Low");
+				}
 				priority.appendChild(priorityText);
 
 				Element line = document.createElement("Line");
@@ -138,10 +146,23 @@ public class XMLManager {
 						.getBugRank()));
 				rank.appendChild(rankText);
 
+				Element point = document.createElement("Point");
+				instance.appendChild(point);
+				Text pointText = document.createTextNode(String.valueOf(21 - info.getBugInstance()
+						.getBugRank()));
+				point.appendChild(pointText);
+
 				Element priority = document.createElement("Priority");
 				instance.appendChild(priority);
-				Text priorityText = document.createTextNode(info.getBugInstance()
-						.getPriorityString());
+				Text priorityText = null;
+				String priorityString = info.getBugInstance().getPriorityString();
+				if (priorityString.equals("優先度(高)")) {
+					priorityText = document.createTextNode("High");
+				} else if (priorityString.equals("優先度(中)")) {
+					priorityText = document.createTextNode("Middle");
+				} else {
+					priorityText = document.createTextNode("Low");
+				}
 				priority.appendChild(priorityText);
 
 				Element line = document.createElement("Line");
@@ -166,7 +187,7 @@ public class XMLManager {
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
 			DOMSource source = new DOMSource(document);
-			File newXML = new File(destinationRepository, "bugData.xml");
+			File newXML = new File(bugOutputDirectory, "bugData.xml");
 			FileOutputStream os = new FileOutputStream(newXML);
 			StreamResult result = new StreamResult(os);
 			transformer.transform(source, result);
@@ -181,7 +202,6 @@ public class XMLManager {
 			e.printStackTrace();
 		}
 	}
-
 	public void outputXML() {
 
 	}

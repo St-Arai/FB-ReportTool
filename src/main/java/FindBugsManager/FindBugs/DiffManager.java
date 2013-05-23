@@ -26,8 +26,6 @@ public class DiffManager {
 	public DiffManager(File file, String path) {
 		_file = file;
 		_path = path;
-
-		// diffDriver();
 	}
 
 	public void diffDriver() {

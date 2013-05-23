@@ -25,8 +25,6 @@ public class BlameManager {
 	public BlameManager(File file, String path) {
 		_file = file;
 		_path = path;
-
-		// blameDriver();
 	}
 
 	public void blameDriver() {
