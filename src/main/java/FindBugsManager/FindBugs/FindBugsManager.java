@@ -2,116 +2,129 @@ package FindBugsManager.FindBugs;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import edu.umd.cs.findbugs.BugInstance;
+import FindBugs.DataSets.BugInstanceSet;
+import FindBugsManager.Core.XMLReader;
+import FindBugsManager.Git.BlameManager;
+import FindBugsManager.Git.DiffManager;
+import FindBugsManager.Git.EditType;
 
 public class FindBugsManager {
-	private File file = null;
+	private File _file = null;
 
 	private static FindBugsManager instance = new FindBugsManager();
 
-	private ArrayList<BugInfo> infoList = new ArrayList<BugInfo>();
-	private ArrayList<BugInfo> preInfoList = new ArrayList<BugInfo>();
+	private XMLReader reader = new XMLReader();
 
-	private ArrayList<BugInfo> editedBugList = new ArrayList<BugInfo>();
+	private ArrayList<BugInstanceSet> infoList = new ArrayList<BugInstanceSet>();
+	private ArrayList<BugInstanceSet> preInfoList = new ArrayList<BugInstanceSet>();
+
+	private ArrayList<BugInstanceSet> editedBugList = new ArrayList<BugInstanceSet>();
 
 	private FindBugsManager() {
 
 	}
 
+	public void initBugInfoLists() {
+		infoList = new ArrayList<BugInstanceSet>();
+		preInfoList = new ArrayList<BugInstanceSet>();
+		editedBugList = new ArrayList<BugInstanceSet>();
+	}
+
+	public static void runFindbugs(String selectedComment, String targetPath, File bugDataDirectory) {
+		Runtime rt = Runtime.getRuntime();
+		Process p = null;
+		try {
+			p = rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low", "-xml",
+					"-output", selectedComment + ".xml", targetPath}, null, bugDataDirectory);
+			p.waitFor();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void createBugInfoList(File currentFile) {
-		this.file = currentFile;
-		if (file.length() == 0) {
+		_file = currentFile;
+		if (_file.length() == 0) {
 			// nothing
 		} else {
-			infoList = new ArrayList<BugInfo>();
-			parseXML(infoList);
+			infoList = reader.parseFindBugsXML(infoList, _file);
 		}
 	}
 
 	public void createPreBugInfoList(File previousFile) {
-		this.file = previousFile;
-		if (file.length() == 0) {
+		_file = previousFile;
+		if (_file.length() == 0) {
 			// nothing
 		} else {
-			preInfoList = new ArrayList<BugInfo>();
-			parseXML(preInfoList);
+			preInfoList = reader.parseFindBugsXML(preInfoList, _file);
 		}
 	}
 
-	private void parseXML(ArrayList<BugInfo> bugInfoList) {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = null;
+	public void checkEditedBugs(DiffManager diff, BlameManager blame) {
+		editedBugList = new ArrayList<BugInstanceSet>();
 
-		int startLine = 0, endLine = 0;
+		for (BugInstanceSet bugInfo : preInfoList) {
+			EditType type = bugInfo.getEditType();
+			if (type == EditType.EDIT) {
+				editedBugList.add(bugInfo);
+			}
+		}
 
-		try {
-			builder = factory.newDocumentBuilder();
-			Document doc = builder.parse(file);
-
-			Element root = doc.getDocumentElement();
-			NodeList children = root.getChildNodes();
-
-			for (int i = 0; i < children.getLength(); i++) {
-				Node child = children.item(i);
-				if (child instanceof Element) {
-					Element childElement = (Element) child;
-					if (childElement.getTagName().equals("BugInstance")) {
-						int bugPriority = Integer.parseInt(childElement.getAttribute("priority"));
-						String bugType = childElement.getAttribute("type");
-
-						NodeList grandChild = childElement.getChildNodes();
-						for (int j = 0; j < grandChild.getLength(); j++) {
-							Node grand = grandChild.item(j);
-							if (grand instanceof Element) {
-								Element grandElement = (Element) grand;
-								if (grandElement.getTagName().equals("SourceLine")) {
-									startLine = Integer
-											.parseInt(grandElement.getAttribute("start"));
-									endLine = Integer.parseInt(grandElement.getAttribute("end"));
-								}
-							}
+		if (!editedBugList.isEmpty()) {
+			int editedBugStart = 0;
+			// int preBugEnd = 0;
+			for (BugInstanceSet editedBugInfo : editedBugList) {
+				editedBugStart = editedBugInfo.getStartLine();
+				// preBugEnd = bugInfo.getEndLine();
+				for (BugInstanceSet info : infoList) {
+					if (info.getEditedStartLine() <= editedBugStart
+							&& editedBugStart <= info.getEditedEndLine()) {
+						if (info.getBugInstance().equals(editedBugInfo.getBugInstance())) {
+							info.setExistFlag(true);
 						}
-						BugInstance instance = new BugInstance(bugType, bugPriority);
-
-						BugInfo info = new BugInfo(instance, startLine, endLine);
-						bugInfoList.add(info);
 					}
 				}
 			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+
+			int i = 0;
+			for (BugInstanceSet info : editedBugList) {
+				if (info.getExistFlag() == true) {
+					editedBugList.remove(i);
+				}
+				i++;
+			}
+
+			ArrayList<String> author;
+			for (BugInstanceSet bugInfo : editedBugList) {
+				author = blame.getAuthors(bugInfo.getStartLine(), bugInfo.getEndLine());
+				bugInfo.setAuthor(author.get(0));
+			}
 		}
+
+		Collections.sort(editedBugList, new IndexSort());
+		Collections.sort(infoList, new IndexSort());
 	}
 
 	public static FindBugsManager getInstance() {
 		return instance;
 	}
 
-	public ArrayList<BugInfo> getBugInfoList() {
+	public ArrayList<BugInstanceSet> getBugInfoList() {
 		return infoList;
 	}
 
-	public ArrayList<BugInfo> getPreBugInfoList() {
+	public ArrayList<BugInstanceSet> getPreBugInfoList() {
 		return preInfoList;
 	}
 
-	public ArrayList<BugInfo> getEditedBugList() {
+	public ArrayList<BugInstanceSet> getEditedBugList() {
 		return editedBugList;
 	}
 
@@ -123,96 +136,28 @@ public class FindBugsManager {
 		return preInfoList.size();
 	}
 
-	public void checkEditedBugs(DiffManager diff, BlameManager blame) {
-		editedBugList = new ArrayList<BugInfo>();
-
-		for (BugInfo bugInfo : preInfoList) {
-			EditType type = bugInfo.getEditType();
-			if (type == EditType.EDIT) {
-				editedBugList.add(bugInfo);
-			}
-		}
-
-		if (!editedBugList.isEmpty()) {
-			int preBugStart = 0;
-			// int preBugEnd = 0;
-			for (BugInfo bugInfo : editedBugList) {
-				preBugStart = bugInfo.getStartLine();
-				// preBugEnd = bugInfo.getEndLine();
-				for (BugInfo info : infoList) {
-					if (info.getPreStartLine() <= preBugStart
-							&& preBugStart <= info.getPreEndLine()) {
-						if (info.getBugInstance().equals(bugInfo.getBugInstance())) {
-							info.setExistFlag();
-						}
-					}
-				}
-			}
-
-			int i = 0;
-			for (BugInfo info : editedBugList) {
-				if (info.getExistFlag() == true) {
-					editedBugList.remove(i);
-				}
-				i++;
-			}
-
-			ArrayList<String> author;
-			for (BugInfo bugInfo : editedBugList) {
-				author = blame.getAuthors(bugInfo.getStartLine(), bugInfo.getEndLine());
-				bugInfo.setAuthor(author.get(0));
-			}
-		}
-	}
-
 	public void display() {
-		BugInstance instance = null;
-		int start = 0, end = 0;
-		EditType type = null;
-		for (BugInfo info : editedBugList) {
-			instance = info.getBugInstance();
-			start = info.getStartLine();
-			end = info.getEndLine();
-			type = info.getEditType();
-
-			displayPatternInfo(instance);
-			System.out.println("Amender : " + info.getAuthor());
-			System.out.println("Line : " + start + " to " + end);
-			System.out.println("EditType : " + type.name());
-			System.out.println();
-		}
-		System.out.println("------------------------------------");
-	}
-
-	public void displayAll() {
-		BugInstance instance = null;
-		int start = 0, end = 0;
-
-		int count = infoList.size();
-		System.out.println("Number of Bugs : " + count + "\n");
-		for (BugInfo info : infoList) {
-			instance = info.getBugInstance();
-			start = info.getStartLine();
-			end = info.getEndLine();
-
-			displayPatternInfo(instance);
-			System.out.println("Author : " + info.getAuthor());
-			System.out.println("Line : " + start + " to " + end);
-			System.out.println();
+		for (BugInstanceSet info : infoList) {
+			System.out.println(info.getBugInstance().getBugPattern().getType());
+			System.out.println(info.getStartLine() + " ~ " + info.getEndLine());
+			System.out.println(info.getEditType());
 		}
 	}
 
-	public void displayPatternInfo(BugInstance instance) {
-		int bugRank = instance.getBugRank();
-		String rankCategory = instance.getBugRankCategory().name();
-		String bugPriority = instance.getPriorityString();
-		String bugCategory = instance.getBugPattern().getCategory();
-		String bugAbbrev = instance.getAbbrev();
-		String bugType = instance.getType();
+}
 
-		System.out.println(bugCategory);
-		System.out.println(bugAbbrev + " : " + bugType);
-		System.out.println(bugPriority + " : " + rankCategory + "(" + bugRank + ")");
+class IndexSort implements Comparator<BugInstanceSet>, Serializable {
+	private static final long serialVersionUID = 1L;
+
+	public int compare(BugInstanceSet set1, BugInstanceSet set2) {
+		int rank1 = set1.getBugInstance().getBugRank();
+		int rank2 = set2.getBugInstance().getBugRank();
+		if (rank1 > rank2) {
+			return 1;
+		} else if (rank1 == rank2) {
+			return 0;
+		} else {
+			return -1;
+		}
 	}
-
 }

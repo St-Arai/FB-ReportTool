@@ -2,17 +2,30 @@ package FindBugsManager.Core;
 
 import java.io.File;
 
+import javax.swing.JFrame;
+
+import FindBugsManager.UI.Login;
+
 public class Main {
+
+	private static final File gitFile = new File("../FBsample/.git");
+	// private static final File gitFile = new File("D:/Users/ALEXANDRITE/Projects/FBsample/.git");
+
+	private static final String filePath = "src/src/FBsample.java";
+
+	private Main() {
+
+	}
+
 	public static void main(String[] args) {
-		// String bugOutputPath = Settings.getOutputDirectory();
+		new Login(new JFrame());
+	}
 
-		// File gitFile = new File("C:/Projects/workspace/TeamGamification/.git");
-		File gitFile = new File("D:/Users/ALEXANDRITE/Projects/FBsample/.git");
+	public static File getGitFile() {
+		return gitFile;
+	}
 
-		String filePath = "src/src/FBsample.java";
-
-		Execute execute = new Execute(gitFile, filePath);
-		execute.run();
-
+	public static String getFilePath() {
+		return filePath;
 	}
 }

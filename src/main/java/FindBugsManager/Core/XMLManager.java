@@ -20,7 +20,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-import FindBugsManager.FindBugs.BugInfo;
+import FindBugs.DataSets.BugInstanceSet;
 import FindBugsManager.FindBugs.FindBugsManager;
 
 public class XMLManager {
@@ -29,7 +29,8 @@ public class XMLManager {
 
 	}
 
-	private final File cmp = new File("../bugOutput/Comparisons");
+	private String bugOutputPath = Settings.getOutputPath();
+	private final File bugOutputDirectory = new File(bugOutputPath);
 
 	public void createXML(FindBugsManager manager) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -52,48 +53,16 @@ public class XMLManager {
 			Element number = document.createElement("BugNumber");
 			preBugs.appendChild(number);
 
-			ArrayList<BugInfo> editedBugs = manager.getEditedBugList();
+			ArrayList<BugInstanceSet> editedBugs = manager.getEditedBugList();
 			String fixNum = String.valueOf(editedBugs.size());
 			Text fixedNumberText = document.createTextNode(fixNum);
 			fixedNumber.appendChild(fixedNumberText);
 
-			for (BugInfo info : editedBugs) {
+			for (BugInstanceSet info : editedBugs) {
 				Element instance = document.createElement("BugInstance");
 				fixedBugs.appendChild(instance);
 
-				Element category = document.createElement("Category");
-				instance.appendChild(category);
-				Text categoryText = document.createTextNode(info.getBugInstance().getBugPattern()
-						.getCategory());
-				category.appendChild(categoryText);
-
-				Element abbrev = document.createElement("Abbreviation");
-				instance.appendChild(abbrev);
-				Text abbrevText = document.createTextNode(info.getBugInstance().getAbbrev());
-				abbrev.appendChild(abbrevText);
-
-				Element type = document.createElement("Type");
-				instance.appendChild(type);
-				Text bugTypeText = document.createTextNode(info.getBugInstance().getType());
-				type.appendChild(bugTypeText);
-
-				Element rank = document.createElement("Rank");
-				instance.appendChild(rank);
-				Text rankText = document.createTextNode(String.valueOf(info.getBugInstance()
-						.getBugRank()));
-				rank.appendChild(rankText);
-
-				Element point = document.createElement("Point");
-				instance.appendChild(point);
-				Text pointText = document.createTextNode(String.valueOf(21 - info.getBugInstance()
-						.getBugRank()));
-				point.appendChild(pointText);
-
-				Element priority = document.createElement("Priority");
-				instance.appendChild(priority);
-				Text priorityText = document.createTextNode(info.getBugInstance()
-						.getPriorityString());
-				priority.appendChild(priorityText);
+				createNodes(document, info, instance);
 
 				Element amender = document.createElement("Amender");
 				instance.appendChild(amender);
@@ -101,42 +70,16 @@ public class XMLManager {
 				amender.appendChild(amenderText);
 			}
 
-			ArrayList<BugInfo> bugInfo = manager.getBugInfoList();
+			ArrayList<BugInstanceSet> bugInfo = manager.getBugInfoList();
 			String num = String.valueOf(bugInfo.size());
 			Text numberText = document.createTextNode(num);
 			number.appendChild(numberText);
 
-			for (BugInfo info : bugInfo) {
+			for (BugInstanceSet info : bugInfo) {
 				Element instance = document.createElement("BugInstance");
 				preBugs.appendChild(instance);
 
-				Element category = document.createElement("Category");
-				instance.appendChild(category);
-				Text categoryText = document.createTextNode(info.getBugInstance().getBugPattern()
-						.getCategory());
-				category.appendChild(categoryText);
-
-				Element abbrev = document.createElement("Abbreviation");
-				instance.appendChild(abbrev);
-				Text abbrevText = document.createTextNode(info.getBugInstance().getAbbrev());
-				abbrev.appendChild(abbrevText);
-
-				Element type = document.createElement("Type");
-				instance.appendChild(type);
-				Text bugTypeText = document.createTextNode(info.getBugInstance().getType());
-				type.appendChild(bugTypeText);
-
-				Element rank = document.createElement("Rank");
-				instance.appendChild(rank);
-				Text rankText = document.createTextNode(String.valueOf(info.getBugInstance()
-						.getBugRank()));
-				rank.appendChild(rankText);
-
-				Element priority = document.createElement("Priority");
-				instance.appendChild(priority);
-				Text priorityText = document.createTextNode(info.getBugInstance()
-						.getPriorityString());
-				priority.appendChild(priorityText);
+				createNodes(document, info, instance);
 
 				Element author = document.createElement("Author");
 				instance.appendChild(author);
@@ -154,7 +97,7 @@ public class XMLManager {
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
 			DOMSource source = new DOMSource(document);
-			File newXML = new File(cmp, "bugData.xml");
+			File newXML = new File(bugOutputDirectory, "bugData.xml");
 			FileOutputStream os = new FileOutputStream(newXML);
 			StreamResult result = new StreamResult(os);
 			transformer.transform(source, result);
@@ -170,7 +113,52 @@ public class XMLManager {
 		}
 	}
 
-	public void outputXML() {
+	private void createNodes(Document document, BugInstanceSet info, Element instance) {
+		Element category = document.createElement("Category");
+		instance.appendChild(category);
+		Text categoryText = document.createTextNode(info.getBugInstance().getBugPattern()
+				.getCategory());
+		category.appendChild(categoryText);
 
+		Element abbrev = document.createElement("Abbreviation");
+		instance.appendChild(abbrev);
+		Text abbrevText = document.createTextNode(info.getBugInstance().getAbbrev());
+		abbrev.appendChild(abbrevText);
+
+		Element type = document.createElement("Type");
+		instance.appendChild(type);
+		Text bugTypeText = document.createTextNode(info.getBugInstance().getType());
+		type.appendChild(bugTypeText);
+
+		Element rank = document.createElement("Rank");
+		instance.appendChild(rank);
+		Text rankText = document.createTextNode(String.valueOf(info.getBugInstance().getBugRank()));
+		rank.appendChild(rankText);
+
+		Element point = document.createElement("Point");
+		instance.appendChild(point);
+		Text pointText = document.createTextNode(String.valueOf(21 - info.getBugInstance()
+				.getBugRank()));
+		point.appendChild(pointText);
+
+		Element priority = document.createElement("Priority");
+		instance.appendChild(priority);
+		Text priorityText = null;
+		String priorityString = info.getBugInstance().getPriorityString();
+		if (priorityString.equals("優先度(高)")) {
+			priorityText = document.createTextNode("High");
+		} else if (priorityString.equals("優先度(中)")) {
+			priorityText = document.createTextNode("Middle");
+		} else {
+			priorityText = document.createTextNode("Low");
+		}
+		priority.appendChild(priorityText);
+
+		Element line = document.createElement("Line");
+		instance.appendChild(line);
+		Text lineText = document.createTextNode(String.valueOf(info.getStartLine()) + " ~ "
+				+ String.valueOf(info.getEndLine()));
+		line.appendChild(lineText);
 	}
+
 }
