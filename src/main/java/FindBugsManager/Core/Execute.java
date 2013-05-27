@@ -2,9 +2,9 @@ package FindBugsManager.Core;
 
 import java.io.File;
 
-import FindBugsManager.FindBugs.BlameManager;
-import FindBugsManager.FindBugs.DiffManager;
 import FindBugsManager.FindBugs.FindBugsManager;
+import FindBugsManager.Git.BlameManager;
+import FindBugsManager.Git.DiffManager;
 
 public class Execute {
 	private FindBugsManager manager = FindBugsManager.getInstance();

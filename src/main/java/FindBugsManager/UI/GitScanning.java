@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -12,23 +11,14 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.eclipse.jgit.api.CheckoutCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.CheckoutConflictException;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRefNameException;
-import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
-import org.eclipse.jgit.api.errors.RefNotFoundException;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepository;
-
 import FindBugsManager.Core.Execute;
 import FindBugsManager.Core.Main;
 import FindBugsManager.Core.Settings;
 import FindBugsManager.Core.XMLManager;
-import FindBugsManager.FindBugs.CommitInfo;
-import FindBugsManager.FindBugs.CommitManager;
 import FindBugsManager.FindBugs.FindBugsManager;
+import FindBugsManager.Git.CheckoutManager;
+import FindBugsManager.Git.CommitInfo;
+import FindBugsManager.Git.CommitManager;
 
 public class GitScanning implements ActionListener {
 
@@ -45,14 +35,11 @@ public class GitScanning implements ActionListener {
 	private JComboBox<String> _checkoutBranches = new JComboBox<String>();
 	private JComboBox<String> _targetBranches = new JComboBox<String>();
 
-	private transient Repository repos = null;
-
 	private String bugDataPath = Settings.getBugDataStorePath();
 	private final File bugDataDirectory = new File(bugDataPath);
 
-	// private static final String targetPath =
-	// "D:/Users/ALEXANDRITE/Projects/FBsample/bin/src/FBsample.class";
-	private static final String targetPath = "../FBsample/bin/src/FBsample.class";
+	private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/FBsample/bin/src/FBsample.class";
+	// private static final String targetPath = "../FBsample/bin/src/FBsample.class";
 
 	public GitScanning(JFrame mainFrame) {
 		_frame = mainFrame;
@@ -104,17 +91,18 @@ public class GitScanning implements ActionListener {
 			String previousComment = _commitLog.get(index + 1).getCommitMessage()
 					.replaceAll("\n", "");
 
+			CheckoutManager check = new CheckoutManager();
 			switch (commandNum) {
 				case 1 :
-					checkoutCommand(previousCommit);
-					runFindbugs(previousComment);
+					check.checkoutCommand(previousCommit);
+					FindBugsManager.runFindbugs(previousComment, targetPath, bugDataDirectory);
 
-					checkoutCommand(selectedCommit);
-					runFindbugs(selectedComment);
+					check.checkoutCommand(selectedCommit);
+					FindBugsManager.runFindbugs(selectedComment, targetPath, bugDataDirectory);
 					break;
 				case 2 :
 					outputBugsResult(index);
-					backtoLatestRevision();
+					check.backtoLatestRevision();
 					break;
 				case 3 :
 					new PersonalDisplay(new JFrame());
@@ -141,7 +129,7 @@ public class GitScanning implements ActionListener {
 		File currentOutput = new File(bugDataDirectory, current + ".xml");
 
 		if (!(currentOutput.exists())) {
-			runFindbugs(current);
+			FindBugsManager.runFindbugs(current, targetPath, bugDataDirectory);
 		}
 		manager.createBugInfoList(currentOutput);
 
@@ -158,65 +146,7 @@ public class GitScanning implements ActionListener {
 		execute.checkFixerName();
 
 		xml.createXML(manager);
+		manager.initBugInfoLists();
 	}
 
-	private void checkoutCommand(String selectedCommit) {
-		try {
-			repos = new FileRepository(_file);
-			Git git = new Git(repos);
-			CheckoutCommand check = git.checkout();
-			check.setName(selectedCommit);
-			check.call();
-
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (RefAlreadyExistsException e1) {
-			e1.printStackTrace();
-		} catch (RefNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (InvalidRefNameException e1) {
-			e1.printStackTrace();
-		} catch (CheckoutConflictException e1) {
-			e1.printStackTrace();
-		} catch (GitAPIException e1) {
-			e1.printStackTrace();
-		}
-	}
-
-	private void runFindbugs(String selectedComment) {
-		Runtime rt = Runtime.getRuntime();
-		Process p = null;
-		try {
-			p = rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low", "-xml",
-					"-output", selectedComment + ".xml", targetPath}, null, bugDataDirectory);
-			p.waitFor();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void backtoLatestRevision() {
-		try {
-			repos = new FileRepository(_file);
-			Git git = new Git(repos);
-			CheckoutCommand check = git.checkout();
-			check.setName("master");
-			check.call();
-
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (RefAlreadyExistsException e1) {
-			e1.printStackTrace();
-		} catch (RefNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (InvalidRefNameException e1) {
-			e1.printStackTrace();
-		} catch (CheckoutConflictException e1) {
-			e1.printStackTrace();
-		} catch (GitAPIException e1) {
-			e1.printStackTrace();
-		}
-	}
 }

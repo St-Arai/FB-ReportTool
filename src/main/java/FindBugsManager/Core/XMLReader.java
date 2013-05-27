@@ -1,5 +1,6 @@
 package FindBugsManager.Core;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -13,7 +14,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import FindBugsManager.UI.BugData;
+import FindBugs.DataSets.BugData;
+import FindBugs.DataSets.BugInstanceSet;
+import edu.umd.cs.findbugs.BugInstance;
 
 public class XMLReader {
 
@@ -25,17 +28,61 @@ public class XMLReader {
 	private DocumentBuilderFactory _factory = DocumentBuilderFactory.newInstance();
 	private DocumentBuilder builder = null;
 
-	private static XMLReader instance = new XMLReader();
+	public XMLReader() {
 
-	private XMLReader() {
-		createBugLists();
 	}
 
-	public static XMLReader getInstance() {
-		return instance;
+	public ArrayList<BugInstanceSet> parseFindBugsXML(ArrayList<BugInstanceSet> bugInfoList, File file) {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = null;
+
+		int startLine = 0, endLine = 0;
+
+		try {
+			builder = factory.newDocumentBuilder();
+			Document doc = builder.parse(file);
+
+			Element root = doc.getDocumentElement();
+			NodeList children = root.getChildNodes();
+
+			for (int i = 0; i < children.getLength(); i++) {
+				Node child = children.item(i);
+				if (child instanceof Element) {
+					Element childElement = (Element) child;
+					if (childElement.getTagName().equals("BugInstance")) {
+						int bugPriority = Integer.parseInt(childElement.getAttribute("priority"));
+						String bugType = childElement.getAttribute("type");
+
+						NodeList grandChild = childElement.getChildNodes();
+						for (int j = 0; j < grandChild.getLength(); j++) {
+							Node grand = grandChild.item(j);
+							if (grand instanceof Element) {
+								Element grandElement = (Element) grand;
+								if (grandElement.getTagName().equals("SourceLine")) {
+									startLine = Integer
+											.parseInt(grandElement.getAttribute("start"));
+									endLine = Integer.parseInt(grandElement.getAttribute("end"));
+								}
+							}
+						}
+						BugInstance instance = new BugInstance(bugType, bugPriority);
+
+						BugInstanceSet info = new BugInstanceSet(instance, startLine, endLine);
+						bugInfoList.add(info);
+					}
+				}
+			}
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return bugInfoList;
 	}
 
-	private void createBugLists() {
+	public void createBugLists() {
 		try {
 			builder = _factory.newDocumentBuilder();
 			Document doc = builder.parse(_filepath);
@@ -91,8 +138,8 @@ public class XMLReader {
 
 		if (grandElement.getTagName().equals("BugInstance")) {
 			NodeList greatChild = grandElement.getChildNodes();
-			for (int k = 0; k < greatChild.getLength(); k++) {
-				Node great = greatChild.item(k);
+			for (int i = 0; i < greatChild.getLength(); i++) {
+				Node great = greatChild.item(i);
 				if (great instanceof Element) {
 					Element greatElement = (Element) great;
 					String tagName = greatElement.getTagName();

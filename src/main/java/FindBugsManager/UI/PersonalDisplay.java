@@ -19,6 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
+import FindBugs.DataSets.BugData;
+import FindBugs.DataSets.PersonalData;
 import FindBugsManager.Core.XMLReader;
 
 public class PersonalDisplay implements ActionListener {
@@ -68,7 +70,8 @@ public class PersonalDisplay implements ActionListener {
 		button.setActionCommand("1");
 		button.addActionListener(this);
 
-		XMLReader bugData = XMLReader.getInstance();
+		XMLReader bugData = new XMLReader();
+		bugData.createBugLists();
 		ArrayList<BugData> fixedData = bugData.getFixedBugDataList();
 		ArrayList<BugData> preData = bugData.getPreviousBugDataList();
 
