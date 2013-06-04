@@ -123,6 +123,8 @@ public class GitScanning implements ActionListener {
 
 	private void outputBugsResult(int index) {
 		FindBugsManager manager = FindBugsManager.getInstance();
+		manager.setCommitter(_commitLog.get(index).getCommitter());
+
 		XMLManager xml = new XMLManager();
 
 		String current = _commitLog.get(index).getCommitMessage().replaceAll("\n", "");

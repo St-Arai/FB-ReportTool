@@ -1,9 +1,9 @@
-package FindBugs.DataSets;
+package FindBugsManager.DataSets;
 
 public class PersonalData {
 
 	private int next = 100;
-	private String name = "Satoshi Arai";
+	private String name = "Satoshi Arai(Lab)";
 	private String job = "Remodeler";
 	private int level = 4;
 

@@ -19,9 +19,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-import FindBugs.DataSets.BugData;
-import FindBugs.DataSets.PersonalData;
 import FindBugsManager.Core.XMLReader;
+import FindBugsManager.DataSets.BugData;
+import FindBugsManager.DataSets.PersonalData;
 
 public class PersonalDisplay implements ActionListener {
 
@@ -73,7 +73,7 @@ public class PersonalDisplay implements ActionListener {
 		XMLReader bugData = new XMLReader();
 		bugData.createBugLists();
 		ArrayList<BugData> fixedData = bugData.getFixedBugDataList();
-		ArrayList<BugData> preData = bugData.getPreviousBugDataList();
+		ArrayList<BugData> remainData = bugData.getRemainBugDataList();
 
 		JLabel iconLabel = new JLabel();
 		ImageIcon icon = new ImageIcon("./img/twitter_icon.jpg");
@@ -103,7 +103,7 @@ public class PersonalDisplay implements ActionListener {
 		int all = 0;
 		for (BugData data : fixedData) {
 			String fixer = data.getFixer();
-			if (fixer.equals("Satoshi Arai")) {
+			if (fixer.equals(pData.getName())) {
 				int rank = data.getRank();
 				String abbrev = data.getAbbrev();
 				String category = data.getCategory();
@@ -139,12 +139,13 @@ public class PersonalDisplay implements ActionListener {
 			}
 		}
 
-		for (BugData data : preData) {
+		for (BugData data : remainData) {
 			int rank = data.getRank();
 			String abbrev = data.getAbbrev();
 			String category = data.getCategory();
 			String priority = data.getPriority();
 			String type = data.getType();
+			String condition = data.getCondition();
 			String line = data.getLine();
 			String author = data.getAuthor();
 
@@ -171,6 +172,14 @@ public class PersonalDisplay implements ActionListener {
 
 			pointlabel.setForeground(Color.red);
 
+			if (condition.equals("NEW")) {
+				JLabel label8 = new JLabel("New Bug!");
+				label8.setFont(new Font("Consolas", Font.BOLD, 18));
+				label8.setForeground(Color.MAGENTA);
+				label8.setHorizontalAlignment(JLabel.LEFT);
+				label8.setVerticalAlignment(JLabel.TOP);
+				rightPanel.add(label8);
+			}
 			rightPanel.add(label);
 			rightPanel.add(label2);
 			rightPanel.add(label3);

@@ -20,7 +20,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-import FindBugs.DataSets.BugInstanceSet;
+import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.FindBugs.FindBugsManager;
 
 public class XMLManager {
@@ -48,10 +48,10 @@ public class XMLManager {
 			Element fixedNumber = document.createElement("BugNumber");
 			fixedBugs.appendChild(fixedNumber);
 
-			Element preBugs = document.createElement("PreviousBugs");
-			project.appendChild(preBugs);
+			Element remainBugs = document.createElement("RemainingBugs");
+			project.appendChild(remainBugs);
 			Element number = document.createElement("BugNumber");
-			preBugs.appendChild(number);
+			remainBugs.appendChild(number);
 
 			ArrayList<BugInstanceSet> editedBugs = manager.getEditedBugList();
 			String fixNum = String.valueOf(editedBugs.size());
@@ -66,7 +66,7 @@ public class XMLManager {
 
 				Element amender = document.createElement("Amender");
 				instance.appendChild(amender);
-				Text amenderText = document.createTextNode(info.getAuthor());
+				Text amenderText = document.createTextNode(info.getAmender());
 				amender.appendChild(amenderText);
 			}
 
@@ -77,7 +77,7 @@ public class XMLManager {
 
 			for (BugInstanceSet info : bugInfo) {
 				Element instance = document.createElement("BugInstance");
-				preBugs.appendChild(instance);
+				remainBugs.appendChild(instance);
 
 				createNodes(document, info, instance);
 
@@ -112,7 +112,6 @@ public class XMLManager {
 			e.printStackTrace();
 		}
 	}
-
 	private void createNodes(Document document, BugInstanceSet info, Element instance) {
 		Element category = document.createElement("Category");
 		instance.appendChild(category);
@@ -153,6 +152,11 @@ public class XMLManager {
 			priorityText = document.createTextNode("Low");
 		}
 		priority.appendChild(priorityText);
+
+		Element condition = document.createElement("Condition");
+		instance.appendChild(condition);
+		Text conditionText = document.createTextNode(String.valueOf(info.getEditType()));
+		condition.appendChild(conditionText);
 
 		Element line = document.createElement("Line");
 		instance.appendChild(line);

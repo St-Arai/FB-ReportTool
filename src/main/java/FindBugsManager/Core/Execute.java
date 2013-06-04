@@ -27,6 +27,9 @@ public class Execute {
 		diff.diffDriver();
 		blame.blameDriver();
 
-		manager.checkEditedBugs(diff, blame);
+		// manager.checkEditedBugs(diff, blame);
+		manager.compareBugInfoLists();
+		manager.display();
+
 	}
 }
