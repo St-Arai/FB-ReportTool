@@ -28,6 +28,26 @@ public class BugData {
 
 	}
 
+	public BugData(BugInstanceSet info) {
+		_category = info.getBugInstance().getBugPattern().getCategory();
+		_abbrev = info.getBugInstance().getAbbrev();
+		_type = info.getBugInstance().getType();
+		_rank = info.getBugInstance().getBugRank();
+		_point = 21 - _rank;
+		String priorityString = info.getBugInstance().getPriorityString();
+		if (priorityString.equals("優先度(高)")) {
+			_priority = "High";
+		} else if (priorityString.equals("優先度(中)")) {
+			_priority = "Middle";
+		} else {
+			_priority = "Low";
+		}
+		_condition = info.getEditType().toString();
+
+		_fixer = info.getAmender();
+		_author = info.getAuthor();
+	}
+
 	public String getCategory() {
 		return _category;
 	}

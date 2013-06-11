@@ -22,19 +22,23 @@ import javax.swing.JSplitPane;
 import FindBugsManager.Core.XMLReader;
 import FindBugsManager.DataSets.BugData;
 import FindBugsManager.DataSets.PersonalData;
+import FindBugsManager.Git.AccountManager;
 
 public class PersonalDisplay implements ActionListener {
 
 	private JFrame _frame = null;
 
-	private PersonalData pData = new PersonalData();
+	private AccountManager account = AccountManager.getInstance();
 
-	public PersonalDisplay(JFrame mainFrame) {
+	public PersonalDisplay(JFrame mainFrame, String targetName) {
 		_frame = mainFrame;
 
 		_frame.setSize(new Dimension(1000, 750));
-		_frame.setTitle("");
-		_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		_frame.setTitle("Personal Bug Info : " + targetName);
+		_frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+		PersonalData pData = null;
+		pData = account.getPersonalData(targetName);
 
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
@@ -50,10 +54,9 @@ public class PersonalDisplay implements ActionListener {
 		fbLabel.setIcon(fbIcon);
 		rightPanel.add(fbLabel);
 
-		JLabel bugInfo = new JLabel();
-		bugInfo.setText("Remaining Bugs");
+		JLabel bugInfo = new JLabel("Remaining Bugs");
 		bugInfo.setFont(new Font("Consolas", Font.BOLD, 30));
-		bugInfo.setForeground(Color.green);
+		bugInfo.setForeground(Color.GREEN);
 		rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 		rightPanel.add(bugInfo);
 		rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -93,14 +96,13 @@ public class PersonalDisplay implements ActionListener {
 		jobLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		jobLabel.setBackground(Color.white);
 
-		JLabel text = new JLabel("Fixed Bug");
+		JLabel text = new JLabel("Fixed Bugs");
 		text.setFont(new Font("Consolas", Font.BOLD, 30));
-		text.setForeground(Color.blue);
+		text.setForeground(Color.BLUE);
 		text.setHorizontalAlignment(JLabel.LEFT);
 		text.setVerticalAlignment(JLabel.TOP);
 		bugPanel.add(text);
 
-		int all = 0;
 		for (BugData data : fixedData) {
 			String fixer = data.getFixer();
 			if (fixer.equals(pData.getName())) {
@@ -109,15 +111,16 @@ public class PersonalDisplay implements ActionListener {
 				String category = data.getCategory();
 				String priority = data.getPriority();
 				String type = data.getType();
+				String author = data.getFixer();
 
 				int point = data.getPoint();
-				all += point;
 
 				JLabel label = new JLabel("Confidence : " + priority);
 				JLabel label2 = new JLabel("Rank : " + rank);
 				JLabel label3 = new JLabel("Category : " + category);
 				JLabel label4 = new JLabel("Abbrev : " + abbrev);
 				JLabel label5 = new JLabel("Type : " + type);
+				JLabel label6 = new JLabel("Fixer :" + author);
 				JLabel pointlabel = new JLabel("+ " + point + " points");
 
 				int fontSize = 18;
@@ -126,6 +129,7 @@ public class PersonalDisplay implements ActionListener {
 				setFont(label3, fontSize);
 				setFont(label4, fontSize);
 				setFont(label5, fontSize);
+				setFont(label6, fontSize);
 				setFont(pointlabel, fontSize);
 				pointlabel.setForeground(Color.red);
 
@@ -134,6 +138,7 @@ public class PersonalDisplay implements ActionListener {
 				bugPanel.add(label3);
 				bugPanel.add(label4);
 				bugPanel.add(label5);
+				bugPanel.add(label6);
 				bugPanel.add(pointlabel);
 				bugPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 			}
@@ -191,11 +196,12 @@ public class PersonalDisplay implements ActionListener {
 			rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 		}
 
-		JLabel score = new JLabel("+ " + all + " points!");
+		int newPoint = pData.getPoint();
+		JLabel score = new JLabel("+ " + newPoint + " points!");
 		score.setFont(new Font("Consolas", Font.BOLD, 30));
 		score.setAlignmentX(Component.CENTER_ALIGNMENT);
-		score.setForeground(Color.red);
-		int remain = pData.getRemain() - all;
+		score.setForeground(Color.RED);
+		int remain = pData.getRemain() - newPoint;
 		JLabel next = new JLabel("next... " + remain + " points.");
 		next.setFont(new Font("Consolas", Font.BOLD, 20));
 		next.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -230,13 +236,63 @@ public class PersonalDisplay implements ActionListener {
 		scorePanel.add(score);
 		scorePanel.add(next);
 
-		leftPanel.add(iconLabel);
-		leftPanel.add(nameLabel);
-		leftPanel.add(jobLabel);
-		leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
-		leftPanel.add(scorePanel);
-		leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
-		leftPanel.add(button);
+		JLabel revLabel = new JLabel("Revision History");
+		revLabel.setFont(new Font("Consolas", Font.BOLD, 30));
+		revLabel.setForeground(new Color(0, 191, 255));
+
+		JLabel sumLabel = new JLabel("Total Points : "
+				+ account.getPersonalData(targetName).getPoint());
+		setFont(sumLabel, 18);
+		sumLabel.setForeground(Color.RED);
+
+		leftPanel.add(revLabel);
+		leftPanel.add(sumLabel);
+		leftPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+
+		ArrayList<BugData> dataList = account.getPersonalBugData(targetName);
+		for (BugData data : dataList) {
+			int rank = data.getRank();
+			String abbrev = data.getAbbrev();
+			String category = data.getCategory();
+			String priority = data.getPriority();
+			String type = data.getType();
+
+			int point = data.getPoint();
+
+			JLabel label = new JLabel("Confidence : " + priority);
+			JLabel label2 = new JLabel("Rank : " + rank);
+			JLabel label3 = new JLabel("Category : " + category);
+			JLabel label4 = new JLabel("Abbrev : " + abbrev);
+			JLabel label5 = new JLabel("Type : " + type);
+			JLabel pointlabel = new JLabel("+ " + point + " points");
+
+			int fontSize = 15;
+			setFont(label, fontSize);
+			setFont(label2, fontSize);
+			setFont(label3, fontSize);
+			setFont(label4, fontSize);
+			setFont(label5, fontSize);
+			setFont(pointlabel, fontSize);
+
+			leftPanel.add(label);
+			leftPanel.add(label2);
+			leftPanel.add(label3);
+			leftPanel.add(label4);
+			leftPanel.add(label5);
+			leftPanel.add(pointlabel);
+
+			pointlabel.setForeground(Color.red);
+
+			leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+		}
+		// leftPanel.add(iconLabel);
+		// leftPanel.add(nameLabel);
+		// leftPanel.add(jobLabel);
+		// leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+		// leftPanel.add(scorePanel);
+		// leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+		// leftPanel.add(button);
 
 		centerPanel.add(bugPanel);
 		// panel.add(cpanel);
@@ -276,7 +332,6 @@ public class PersonalDisplay implements ActionListener {
 		_frame.add(splitpane, BorderLayout.CENTER);
 		_frame.setVisible(true);
 	}
-
 	private void setFont(JLabel label, int fontSize) {
 		label.setFont(new Font("Consolas", Font.BOLD, fontSize));
 		label.setHorizontalAlignment(JLabel.LEFT);

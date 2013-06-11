@@ -15,7 +15,10 @@ import FindBugsManager.Core.Execute;
 import FindBugsManager.Core.Main;
 import FindBugsManager.Core.Settings;
 import FindBugsManager.Core.XMLManager;
+import FindBugsManager.DataSets.BugInstanceSet;
+import FindBugsManager.DataSets.PersonalData;
 import FindBugsManager.FindBugs.FindBugsManager;
+import FindBugsManager.Git.AccountManager;
 import FindBugsManager.Git.CheckoutManager;
 import FindBugsManager.Git.CommitInfo;
 import FindBugsManager.Git.CommitManager;
@@ -27,13 +30,15 @@ public class GitScanning implements ActionListener {
 	private File _file = Main.getGitFile();
 	private String _path = Main.getFilePath();
 
-	private CommitManager commit = new CommitManager(_file);;
+	private CommitManager commit = new CommitManager(_file);
+	private AccountManager account = AccountManager.getInstance();
 
 	private JFrame _frame = null;
 	private JPanel panel = new JPanel();
 
 	private JComboBox<String> _checkoutBranches = new JComboBox<String>();
 	private JComboBox<String> _targetBranches = new JComboBox<String>();
+	private JComboBox<String> _committerList = new JComboBox<String>();
 
 	private String bugDataPath = Settings.getBugDataStorePath();
 	private final File bugDataDirectory = new File(bugDataPath);
@@ -45,6 +50,7 @@ public class GitScanning implements ActionListener {
 		_frame = mainFrame;
 
 		initCommitInfo();
+		initCommitterInfo();
 
 		JButton button1 = new JButton("Run FindBugs");
 		JButton button2 = new JButton("Make BugInfo File");
@@ -57,11 +63,13 @@ public class GitScanning implements ActionListener {
 		button3.addActionListener(this);
 		_checkoutBranches.addActionListener(this);
 		_targetBranches.addActionListener(this);
+		_committerList.addActionListener(this);
 
 		panel.add(_checkoutBranches);
 		panel.add(button1);
 		panel.add(button2);
 		panel.add(_targetBranches);
+		panel.add(_committerList);
 		panel.add(button3);
 
 		_frame.add(panel, BorderLayout.CENTER);
@@ -79,11 +87,21 @@ public class GitScanning implements ActionListener {
 		_checkoutBranches = commit.getBranchList();
 	}
 
+	private void initCommitterInfo() {
+		_committerList.removeAllItems();
+		ArrayList<PersonalData> dataList = account.getPersonalDataList();
+		for (PersonalData data : dataList) {
+			_committerList.addItem(data.getName());
+		}
+		_committerList.repaint();
+	}
+
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
 		if (!(action.equals("comboBoxChanged"))) {
 			int commandNum = Integer.parseInt(action);
 			int index = _checkoutBranches.getSelectedIndex();
+			int committerNum = _committerList.getSelectedIndex();
 			String selectedCommit = _commitLog.get(index).getCommitName();
 			String selectedComment = _commitLog.get(index).getCommitMessage().replaceAll("\n", "");
 
@@ -102,10 +120,12 @@ public class GitScanning implements ActionListener {
 					break;
 				case 2 :
 					outputBugsResult(index);
+					initCommitterInfo();
 					check.backtoLatestRevision();
 					break;
 				case 3 :
-					new PersonalDisplay(new JFrame());
+					String target = _committerList.getItemAt(committerNum);
+					new PersonalDisplay(new JFrame(), target);
 					break;
 				default :
 					break;
@@ -115,7 +135,7 @@ public class GitScanning implements ActionListener {
 			int index = _checkoutBranches.getSelectedIndex();
 			String item = _checkoutBranches.getItemAt(index + 1);
 			_targetBranches.addItem(item);
-			_frame.repaint();
+			_targetBranches.repaint();
 		} else {
 			System.out.println(action);
 		}
@@ -123,9 +143,14 @@ public class GitScanning implements ActionListener {
 
 	private void outputBugsResult(int index) {
 		FindBugsManager manager = FindBugsManager.getInstance();
-		manager.setCommitter(_commitLog.get(index).getCommitter());
+		String committer = _commitLog.get(index).getCommitter();
+		manager.setCommitter(committer);
 
 		XMLManager xml = new XMLManager();
+		String comId = _commitLog.get(index).getCommitName().substring(0, 4);
+		String preComId = _commitLog.get(index + 1).getCommitName().substring(0, 4);
+		String id = String.valueOf(index + 1) + "to" + String.valueOf(index) + "_" + comId
+				+ preComId;
 
 		String current = _commitLog.get(index).getCommitMessage().replaceAll("\n", "");
 		File currentOutput = new File(bugDataDirectory, current + ".xml");
@@ -135,7 +160,7 @@ public class GitScanning implements ActionListener {
 		}
 		manager.createBugInfoList(currentOutput);
 
-		String target = _commitLog.get(index + 1).getCommitMessage().replaceAll("\n", "");;
+		String target = _commitLog.get(index + 1).getCommitMessage().replaceAll("\n", "");
 		File targetOutput = new File(bugDataDirectory, target + ".xml");
 
 		if (!(targetOutput.exists())) {
@@ -147,8 +172,14 @@ public class GitScanning implements ActionListener {
 		Execute execute = new Execute(_file, _path);
 		execute.checkFixerName();
 
-		xml.createXML(manager);
+		ArrayList<BugInstanceSet> edited = manager.getEditedBugList();
+		int sum = 0;
+		for (BugInstanceSet info : edited) {
+			sum += (21 - info.getBugInstance().getBugRank());
+		}
+		account.updatePersonalData(committer, sum, edited);
+
+		xml.createXML(manager, id);
 		manager.initBugInfoLists();
 	}
-
 }

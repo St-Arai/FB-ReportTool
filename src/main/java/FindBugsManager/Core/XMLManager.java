@@ -3,6 +3,7 @@ package FindBugsManager.Core;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -32,9 +33,9 @@ public class XMLManager {
 	private String bugOutputPath = Settings.getOutputPath();
 	private final File bugOutputDirectory = new File(bugOutputPath);
 
-	public void createXML(FindBugsManager manager) {
+	public void createXML(FindBugsManager manager, String id) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder;
+		DocumentBuilder builder = null;
 		try {
 			builder = factory.newDocumentBuilder();
 
@@ -97,11 +98,8 @@ public class XMLManager {
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
 			DOMSource source = new DOMSource(document);
-			File newXML = new File(bugOutputDirectory, "bugData.xml");
-			FileOutputStream os = new FileOutputStream(newXML);
-			StreamResult result = new StreamResult(os);
-			transformer.transform(source, result);
-
+			xmlOutput("bugData" + id, transformer, source);
+			xmlOutput("bugData", transformer, source);
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (TransformerConfigurationException e) {
@@ -110,8 +108,20 @@ public class XMLManager {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
+
+	private void xmlOutput(String fileName, Transformer transformer, DOMSource source)
+			throws TransformerException, IOException {
+		File newXML = new File(bugOutputDirectory, fileName + ".xml");
+		FileOutputStream os = new FileOutputStream(newXML);
+		StreamResult result = new StreamResult(os);
+		transformer.transform(source, result);
+		os.close();
+	}
+
 	private void createNodes(Document document, BugInstanceSet info, Element instance) {
 		Element category = document.createElement("Category");
 		instance.appendChild(category);
