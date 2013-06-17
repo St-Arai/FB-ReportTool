@@ -60,10 +60,10 @@ public class CommitManager {
 		int i = 0;
 		for (CommitInfo commit : commitLog) {
 			System.out.println(commit.getCommitName());
-			System.out.println(commit.getAuthor());
+			System.out.println(commit.getCommitter());
 			System.out.println(commit.getCommitTime());
 			System.out.println(commit.getCommitMessage());
-			info[i] = "<html>" + commit.getCommitTime() + "    :    " + commit.getAuthor()
+			info[i] = "<html>" + commit.getCommitTime() + "    :    " + commit.getCommitter()
 					+ "<br/>" + commit.getCommitMessage() + "</html>";
 			i++;
 		}

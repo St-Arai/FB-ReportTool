@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import FindBugs.DataSets.BugInstanceSet;
 import FindBugsManager.Core.XMLReader;
+import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.Git.BlameManager;
 import FindBugsManager.Git.DiffManager;
 import FindBugsManager.Git.EditType;
@@ -24,6 +24,8 @@ public class FindBugsManager {
 	private ArrayList<BugInstanceSet> preInfoList = new ArrayList<BugInstanceSet>();
 
 	private ArrayList<BugInstanceSet> editedBugList = new ArrayList<BugInstanceSet>();
+
+	private String _committer = null;
 
 	private FindBugsManager() {
 
@@ -44,8 +46,8 @@ public class FindBugsManager {
 			p.waitFor();
 		} catch (IOException e1) {
 			e1.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
 		}
 	}
 
@@ -65,6 +67,72 @@ public class FindBugsManager {
 		} else {
 			preInfoList = reader.parseFindBugsXML(preInfoList, _file);
 		}
+	}
+
+	public void compareBugInfoLists() {
+		ArrayList<String> preTypeList = new ArrayList<String>();
+		ArrayList<String> typeList = new ArrayList<String>();
+
+		ArrayList<String> editedTypeList = new ArrayList<String>();
+		ArrayList<String> newTypeList = new ArrayList<String>();
+
+		for (BugInstanceSet bugInfo : preInfoList) {
+			preTypeList.add(bugInfo.getBugInstance().getBugPattern().getType());
+		}
+		for (BugInstanceSet bugInfo : infoList) {
+			typeList.add(bugInfo.getBugInstance().getBugPattern().getType());
+		}
+
+		ArrayList<String> compareList = new ArrayList<String>(typeList);
+		for (String preType : preTypeList) {
+			if (compareList.contains(preType)) {
+				for (int i = 0; i < compareList.size(); i++) {
+					if (compareList.get(i).equals(preType)) {
+						compareList.remove(i);
+						break;
+					}
+				}
+			} else {
+				editedTypeList.add(preType);
+			}
+		}
+		for (String type : typeList) {
+			if (preTypeList.contains(type)) {
+				//
+			} else {
+				newTypeList.add(type);
+			}
+		}
+
+		for (int i = 0; i < preInfoList.size(); i++) {
+			for (String name : editedTypeList) {
+				BugInstanceSet preInfo = preInfoList.get(i);
+				if (preInfo.getBugInstance().getBugPattern().getType().equals(name)) {
+					preInfo.setEditType(EditType.EDIT);
+					preInfo.setAmender(_committer);
+					editedBugList.add(preInfo);
+					break;
+				} else {
+					preInfo.setEditType(EditType.NO_CHANGE);
+				}
+			}
+		}
+
+		for (int i = 0; i < infoList.size(); i++) {
+			for (String name : newTypeList) {
+				BugInstanceSet info = infoList.get(i);
+				if (info.getBugInstance().getBugPattern().getType().equals(name)) {
+					info.setEditType(EditType.NEW);
+					info.setAuthor(_committer);
+					break;
+				} else {
+					info.setEditType(EditType.NO_CHANGE);
+				}
+			}
+		}
+
+		Collections.sort(editedBugList, new IndexSort());
+		Collections.sort(infoList, new IndexSort());
 	}
 
 	public void checkEditedBugs(DiffManager diff, BlameManager blame) {
@@ -104,14 +172,13 @@ public class FindBugsManager {
 			ArrayList<String> author;
 			for (BugInstanceSet bugInfo : editedBugList) {
 				author = blame.getAuthors(bugInfo.getStartLine(), bugInfo.getEndLine());
-				bugInfo.setAuthor(author.get(0));
+				bugInfo.setAmender(author.get(0));
 			}
 		}
 
 		Collections.sort(editedBugList, new IndexSort());
 		Collections.sort(infoList, new IndexSort());
 	}
-
 	public static FindBugsManager getInstance() {
 		return instance;
 	}
@@ -136,11 +203,17 @@ public class FindBugsManager {
 		return preInfoList.size();
 	}
 
+	public void setCommitter(String committer) {
+		_committer = committer;
+	}
+
 	public void display() {
 		for (BugInstanceSet info : infoList) {
 			System.out.println(info.getBugInstance().getBugPattern().getType());
 			System.out.println(info.getStartLine() + " ~ " + info.getEndLine());
 			System.out.println(info.getEditType());
+			System.out.println(info.getAmender());
+			System.out.println(info.getAuthor());
 		}
 	}
 

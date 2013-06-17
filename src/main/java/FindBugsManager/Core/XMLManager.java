@@ -3,6 +3,7 @@ package FindBugsManager.Core;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -20,7 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-import FindBugs.DataSets.BugInstanceSet;
+import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.FindBugs.FindBugsManager;
 
 public class XMLManager {
@@ -32,9 +33,9 @@ public class XMLManager {
 	private String bugOutputPath = Settings.getOutputPath();
 	private final File bugOutputDirectory = new File(bugOutputPath);
 
-	public void createXML(FindBugsManager manager) {
+	public void createXML(FindBugsManager manager, String id) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder;
+		DocumentBuilder builder = null;
 		try {
 			builder = factory.newDocumentBuilder();
 
@@ -48,10 +49,10 @@ public class XMLManager {
 			Element fixedNumber = document.createElement("BugNumber");
 			fixedBugs.appendChild(fixedNumber);
 
-			Element preBugs = document.createElement("PreviousBugs");
-			project.appendChild(preBugs);
+			Element remainBugs = document.createElement("RemainingBugs");
+			project.appendChild(remainBugs);
 			Element number = document.createElement("BugNumber");
-			preBugs.appendChild(number);
+			remainBugs.appendChild(number);
 
 			ArrayList<BugInstanceSet> editedBugs = manager.getEditedBugList();
 			String fixNum = String.valueOf(editedBugs.size());
@@ -66,7 +67,7 @@ public class XMLManager {
 
 				Element amender = document.createElement("Amender");
 				instance.appendChild(amender);
-				Text amenderText = document.createTextNode(info.getAuthor());
+				Text amenderText = document.createTextNode(info.getAmender());
 				amender.appendChild(amenderText);
 			}
 
@@ -77,7 +78,7 @@ public class XMLManager {
 
 			for (BugInstanceSet info : bugInfo) {
 				Element instance = document.createElement("BugInstance");
-				preBugs.appendChild(instance);
+				remainBugs.appendChild(instance);
 
 				createNodes(document, info, instance);
 
@@ -97,11 +98,8 @@ public class XMLManager {
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
 			DOMSource source = new DOMSource(document);
-			File newXML = new File(bugOutputDirectory, "bugData.xml");
-			FileOutputStream os = new FileOutputStream(newXML);
-			StreamResult result = new StreamResult(os);
-			transformer.transform(source, result);
-
+			xmlOutput("bugData" + id, transformer, source);
+			xmlOutput("bugData", transformer, source);
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (TransformerConfigurationException e) {
@@ -110,7 +108,18 @@ public class XMLManager {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+	}
+
+	private void xmlOutput(String fileName, Transformer transformer, DOMSource source)
+			throws TransformerException, IOException {
+		File newXML = new File(bugOutputDirectory, fileName + ".xml");
+		FileOutputStream os = new FileOutputStream(newXML);
+		StreamResult result = new StreamResult(os);
+		transformer.transform(source, result);
+		os.close();
 	}
 
 	private void createNodes(Document document, BugInstanceSet info, Element instance) {
@@ -153,6 +162,11 @@ public class XMLManager {
 			priorityText = document.createTextNode("Low");
 		}
 		priority.appendChild(priorityText);
+
+		Element condition = document.createElement("Condition");
+		instance.appendChild(condition);
+		Text conditionText = document.createTextNode(String.valueOf(info.getEditType()));
+		condition.appendChild(conditionText);
 
 		Element line = document.createElement("Line");
 		instance.appendChild(line);
