@@ -1,4 +1,4 @@
-package FindBugs.DataSets;
+package FindBugsManager.DataSets;
 
 import FindBugsManager.Git.EditType;
 import edu.umd.cs.findbugs.BugInstance;
@@ -16,6 +16,8 @@ public class BugInstanceSet {
 	private boolean _bugsExistFlag = false;
 
 	private String _author = null;
+	private String _amender = null;
+
 	private EditType _type = null;
 
 	public BugInstanceSet(BugInstance instance, int start, int end) {
@@ -48,6 +50,10 @@ public class BugInstanceSet {
 		return _author;
 	}
 
+	public String getAmender() {
+		return _amender;
+	}
+
 	public EditType getEditType() {
 		return _type;
 	}
@@ -58,6 +64,10 @@ public class BugInstanceSet {
 
 	public void setAuthor(String author) {
 		_author = author;
+	}
+
+	public void setAmender(String amender) {
+		_amender = amender;
 	}
 
 	public void setEditType(EditType type) {

@@ -11,17 +11,14 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.gitective.core.BlobUtils;
 
-import FindBugs.DataSets.BugInstanceSet;
+import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.FindBugs.FindBugsManager;
 
 public class DiffManager {
 
-	private transient FindBugsManager manager = FindBugsManager.getInstance();
-
+	private FindBugsManager manager = FindBugsManager.getInstance();
+	private ArrayList<BugInstanceSet> preInfoList = manager.getPreBugInfoList();
 	private Collection<Edit> edits = null;
-
-	private transient ArrayList<BugInstanceSet> infoList = manager.getBugInfoList();
-	private transient ArrayList<BugInstanceSet> preInfoList = manager.getPreBugInfoList();;
 
 	private final static String branchName = "master";
 
@@ -46,11 +43,10 @@ public class DiffManager {
 
 		edits = BlobUtils.diff(repo, previous, current);
 
-		setInfo(infoList);
 		setPreviousInfo(preInfoList);
 	}
 
-	private void setPreviousInfo(ArrayList<BugInstanceSet> infoList) {
+	public void setPreviousInfo(ArrayList<BugInstanceSet> infoList) {
 		int bugLine = 0;
 		int editStartLine = 0;
 		int editEndLine = 0;
@@ -77,33 +73,7 @@ public class DiffManager {
 			System.out.println("No Edits...");
 		}
 	}
-	private void setInfo(ArrayList<BugInstanceSet> infoList) {
-		int bugLine = 0;
-		int editStartLine = 0;
-		int editEndLine = 0;
 
-		if (edits != null) {
-			for (BugInstanceSet bugInfo : infoList) {
-				for (Edit edit : edits) {
-					bugLine = bugInfo.getStartLine();
-					editStartLine = edit.getBeginB();
-					editEndLine = edit.getEndB();
-					if (editStartLine <= bugLine && bugLine <= editEndLine) {
-						bugInfo.setEditType(changeEnumType(edit.getType()));
-						bugInfo.setEditedStartLine(edit.getBeginA());
-						bugInfo.setEditedEndLine(edit.getEndA());
-						break;
-					} else {
-						bugInfo.setEditType(EditType.NO_CHANGE);
-					}
-				}
-				System.out.println(bugInfo.getBugInstance().getBugPattern().getType());
-				System.out.println(bugInfo.getEditType());
-			}
-		} else {
-			System.out.println("No Edits...");
-		}
-	}
 	private EditType changeEnumType(Edit.Type type) {
 		EditType changedtype = null;
 		switch (type) {

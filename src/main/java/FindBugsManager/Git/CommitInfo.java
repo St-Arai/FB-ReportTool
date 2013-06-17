@@ -5,14 +5,14 @@ import java.sql.Date;
 public class CommitInfo {
 
 	private String _commit = null;
-	private String _author = null;
+	private String _committer = null;
 	private int _time = 0;
 	private String _date = null;
 	private String _message = null;
 
-	public CommitInfo(String commit, String author, int time, String message) {
+	public CommitInfo(String commit, String committer, int time, String message) {
 		_commit = commit;
-		_author = author;
+		_committer = committer;
 		_time = time;
 		_message = message;
 
@@ -24,8 +24,8 @@ public class CommitInfo {
 		return _commit;
 	}
 
-	public String getAuthor() {
-		return _author;
+	public String getCommitter() {
+		return _committer;
 	}
 
 	public String getCommitTime() {

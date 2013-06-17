@@ -12,7 +12,7 @@ import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
 
-import FindBugs.DataSets.BugInstanceSet;
+import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.FindBugs.FindBugsManager;
 
 public class BlameManager {

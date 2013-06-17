@@ -14,14 +14,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import FindBugs.DataSets.BugData;
-import FindBugs.DataSets.BugInstanceSet;
+import FindBugsManager.DataSets.BugData;
+import FindBugsManager.DataSets.BugInstanceSet;
 import edu.umd.cs.findbugs.BugInstance;
 
 public class XMLReader {
 
 	private ArrayList<BugData> fixed = new ArrayList<BugData>();
-	private ArrayList<BugData> previous = new ArrayList<BugData>();
+	private ArrayList<BugData> remain = new ArrayList<BugData>();
 
 	private String _filepath = "../bugOutput/Comparisons/bugData.xml";
 
@@ -32,7 +32,8 @@ public class XMLReader {
 
 	}
 
-	public ArrayList<BugInstanceSet> parseFindBugsXML(ArrayList<BugInstanceSet> bugInfoList, File file) {
+	public ArrayList<BugInstanceSet> parseFindBugsXML(ArrayList<BugInstanceSet> bugInfoList,
+			File file) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = null;
 
@@ -104,13 +105,13 @@ public class XMLReader {
 								getElements(grandElement, fixed);
 							}
 						}
-					} else if (tagName.equals("PreviousBugs")) {
+					} else if (tagName.equals("RemainingBugs")) {
 						NodeList grandChild = childElement.getChildNodes();
 						for (int j = 0; j < grandChild.getLength(); j++) {
 							Node grand = grandChild.item(j);
 							if (grand instanceof Element) {
 								Element grandElement = (Element) grand;
-								getElements(grandElement, previous);
+								getElements(grandElement, remain);
 							}
 						}
 					}
@@ -132,6 +133,7 @@ public class XMLReader {
 		String bugRank = null;
 		String bugPoint = null;
 		String bugPriority = null;
+		String bugCondition = null;
 		String bugLine = null;
 		String bugFixer = null;
 		String bugAuthor = null;
@@ -153,10 +155,12 @@ public class XMLReader {
 						bugRank = greatElement.getTextContent();
 					} else if (tagName.equals("Point")) {
 						bugPoint = greatElement.getTextContent();
-					} else if (tagName.equals("Line")) {
-						bugLine = greatElement.getTextContent();
 					} else if (tagName.equals("Priority")) {
 						bugPriority = greatElement.getTextContent();
+					} else if (tagName.equals("Condition")) {
+						bugCondition = greatElement.getTextContent();
+					} else if (tagName.equals("Line")) {
+						bugLine = greatElement.getTextContent();
 					} else if (tagName.equals("Amender")) {
 						bugFixer = greatElement.getTextContent();
 					} else if (tagName.equals("Author")) {
@@ -167,14 +171,14 @@ public class XMLReader {
 				}
 			}
 			list.add(new BugData(bugCategory, bugAbbrev, bugType, bugRank, bugPoint, bugPriority,
-					bugLine, bugFixer, bugAuthor));
+					bugCondition, bugLine, bugFixer, bugAuthor));
 		}
 	}
 	public ArrayList<BugData> getFixedBugDataList() {
 		return fixed;
 	}
 
-	public ArrayList<BugData> getPreviousBugDataList() {
-		return previous;
+	public ArrayList<BugData> getRemainBugDataList() {
+		return remain;
 	}
 }
