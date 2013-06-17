@@ -2,39 +2,31 @@ package FindBugsManager.Core;
 
 import java.io.File;
 
-import FindBugsManager.FindBugs.BlameManager;
-import FindBugsManager.FindBugs.CommitManager;
-import FindBugsManager.FindBugs.DiffManager;
 import FindBugsManager.FindBugs.FindBugsManager;
+import FindBugsManager.Git.BlameManager;
+import FindBugsManager.Git.DiffManager;
 
 public class Execute {
+	private FindBugsManager manager = FindBugsManager.getInstance();
+
 	private BlameManager blame = null;
 	private DiffManager diff = null;
-	private CommitManager commit = null;
 
-	private File gitFile = null;
-	private String filePath = null;
-
-	private FindBugsManager manager = null;
+	private File _gitFile = null;
+	private String _filePath = null;
 
 	public Execute(File file, String path) {
-		this.gitFile = file;
-		this.filePath = path;
-		this.manager = FindBugsManager.getInstance();
+		_gitFile = file;
+		_filePath = path;
 	}
 
-	public void run() {
-		commit = new CommitManager(gitFile, filePath);
-		diff = new DiffManager(gitFile, filePath);
-		blame = new BlameManager(gitFile, filePath);
-		manager.checkEditedBugs(diff, blame);
+	public void checkFixerName() {
+		diff = new DiffManager(_gitFile, _filePath);
+		blame = new BlameManager(_gitFile, _filePath);
 
-		commit.display();
-	}
+		diff.diffDriver();
+		blame.blameDriver();
 
-	public void check() {
-		diff = new DiffManager(gitFile, filePath);
-		blame = new BlameManager(gitFile, filePath);
 		manager.checkEditedBugs(diff, blame);
 	}
 }

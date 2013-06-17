@@ -30,7 +30,11 @@ public class Settings {
 
 	}
 
-	public static String getOutputDirectory() {
-		return properties.getProperty("outputDirectory");
+	public static String getOutputPath() {
+		return properties.getProperty("outputpath");
+	}
+
+	public static String getBugDataStorePath() {
+		return properties.getProperty("bugdatastorepath");
 	}
 }
