@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -24,18 +25,18 @@ import FindBugsManager.DataSets.BugData;
 import FindBugsManager.DataSets.PersonalData;
 import FindBugsManager.Git.AccountManager;
 
-public class PersonalDisplay implements ActionListener {
+public class PersonalDisplay {
 
 	private JFrame _frame = null;
 
-	private AccountManager account = AccountManager.getInstance();
-
-	public PersonalDisplay(JFrame mainFrame, String targetName) {
+	public PersonalDisplay(JFrame mainFrame, final String targetName) {
 		_frame = mainFrame;
 
-		_frame.setSize(new Dimension(1000, 750));
+		_frame.setSize(new Dimension(1200, 750));
 		_frame.setTitle("Personal Bug Info : " + targetName);
 		_frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+		AccountManager account = AccountManager.getInstance();
 
 		PersonalData pData = null;
 		pData = account.getPersonalData(targetName);
@@ -43,7 +44,6 @@ public class PersonalDisplay implements ActionListener {
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
 		leftPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
 
@@ -54,29 +54,34 @@ public class PersonalDisplay implements ActionListener {
 		fbLabel.setIcon(fbIcon);
 		rightPanel.add(fbLabel);
 
-		JLabel bugInfo = new JLabel("Remaining Bugs");
-		bugInfo.setFont(new Font("Consolas", Font.BOLD, 30));
-		bugInfo.setForeground(Color.GREEN);
-		rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-		rightPanel.add(bugInfo);
-		rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+		JScrollPane scrollpaneL = new JScrollPane(leftPanel);
+		JScrollPane scrollpaneR = new JScrollPane(rightPanel);
+		JScrollPane scrollpaneC = new JScrollPane(centerPanel);
+		JSplitPane splitpaneR = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		splitpaneR.setDividerSize(3);
+		final JSplitPane splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		splitpane.setDividerSize(3);
 
-		JPanel scorePanel = new JPanel();
-		scorePanel.setLayout(new BoxLayout(scorePanel, BoxLayout.PAGE_AXIS));
-
-		JPanel bugPanel = new JPanel();
-		bugPanel.setLayout(new BoxLayout(bugPanel, BoxLayout.PAGE_AXIS));
-		bugPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-		JButton button = new JButton("Back");
-		button.setAlignmentX(Component.CENTER_ALIGNMENT);
-		button.setActionCommand("1");
-		button.addActionListener(this);
+		JButton updateButton = new JButton("Update");
+		updateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_frame.remove(splitpane);
+				new PersonalDisplay(_frame, targetName);
+			}
+		});
+		leftPanel.add(updateButton);
 
 		XMLReader bugData = new XMLReader();
 		bugData.createBugLists();
 		ArrayList<BugData> fixedData = bugData.getFixedBugDataList();
 		ArrayList<BugData> remainData = bugData.getRemainBugDataList();
+
+		JPanel scorePanel = new JPanel();
+		scorePanel.setLayout(new BoxLayout(scorePanel, BoxLayout.PAGE_AXIS));
+
+		JPanel fixedPanel = new JPanel();
+		fixedPanel.setLayout(new BoxLayout(fixedPanel, BoxLayout.PAGE_AXIS));
+		fixedPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		JLabel iconLabel = new JLabel();
 		ImageIcon icon = new ImageIcon("./img/twitter_icon.jpg");
@@ -101,7 +106,86 @@ public class PersonalDisplay implements ActionListener {
 		text.setForeground(Color.BLUE);
 		text.setHorizontalAlignment(JLabel.LEFT);
 		text.setVerticalAlignment(JLabel.TOP);
-		bugPanel.add(text);
+		fixedPanel.add(text);
+
+		int sum = 0;
+		int corr = 0;
+		int sec = 0;
+		int bad = 0;
+		int style = 0;
+		int per = 0;
+		int mal = 0;
+		int mtc = 0;
+		int i18 = 0;
+		int other = 0;
+
+		for (BugData data : fixedData) {
+			String fixer = data.getFixer();
+			if (fixer.equals(targetName)) {
+				sum += data.getPoint();
+			}
+		}
+
+		ArrayList<BugData> pBugList = account.getPersonalBugDataList(targetName);
+		for (BugData data : pBugList) {
+			String category = data.getCategory();
+			if (category.equals("CORRECTNESS")) {
+				corr++;
+			} else if (category.equals("SECURITY")) {
+				sec++;
+			} else if (category.equals("BAD_PRACTICE")) {
+				bad++;
+			} else if (category.equals("STYLE")) {
+				style++;
+			} else if (category.equals("PERFORMANCE")) {
+				per++;
+			} else if (category.equals("MALICIOUS_CODE")) {
+				mal++;
+			} else if (category.equals("MT_CORRECTNESS")) {
+				mtc++;
+			} else if (category.equals("I18N")) {
+				i18++;
+			} else {
+				other++;
+			}
+		}
+
+		JLabel corLabel = new JLabel("COR:" + String.valueOf(corr) + "  " + "SEC:"
+				+ String.valueOf(sec));
+		JLabel badLabel = new JLabel("BAD:" + String.valueOf(bad) + "  " + "STY:"
+				+ String.valueOf(style));
+		JLabel perLabel = new JLabel("PER:" + String.valueOf(per) + "  " + "MAL:"
+				+ String.valueOf(mal));
+		JLabel mtcLabel = new JLabel("MTC:" + String.valueOf(mtc) + "  " + "i18:"
+				+ String.valueOf(i18));
+		JLabel othLabel = new JLabel("Other:" + String.valueOf(other));
+
+		rightPanel.add(corLabel);
+		rightPanel.add(badLabel);
+		rightPanel.add(perLabel);
+		rightPanel.add(mtcLabel);
+		rightPanel.add(othLabel);
+		rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+		JLabel remainText = new JLabel("Remaining Bugs");
+		remainText.setFont(new Font("Consolas", Font.BOLD, 30));
+		remainText.setForeground(Color.GREEN);
+		JLabel bugCount = new JLabel(String.valueOf(remainData.size()));
+		bugCount.setFont(new Font("Consolas", Font.BOLD, 20));
+		bugCount.setForeground(Color.RED);
+		rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+		rightPanel.add(remainText);
+		rightPanel.add(bugCount);
+		rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+		JLabel pointText = new JLabel();
+		pointText.setFont(new Font("Consolas", Font.BOLD, 25));
+		pointText.setForeground(Color.RED);
+		pointText.setHorizontalAlignment(JLabel.LEFT);
+		pointText.setVerticalAlignment(JLabel.TOP);
+		pointText.setText("+ " + String.valueOf(sum) + " points!");
+		fixedPanel.add(pointText);
+		fixedPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
 		for (BugData data : fixedData) {
 			String fixer = data.getFixer();
@@ -133,14 +217,14 @@ public class PersonalDisplay implements ActionListener {
 				setFont(pointlabel, fontSize);
 				pointlabel.setForeground(Color.red);
 
-				bugPanel.add(label);
-				bugPanel.add(label2);
-				bugPanel.add(label3);
-				bugPanel.add(label4);
-				bugPanel.add(label5);
-				bugPanel.add(label6);
-				bugPanel.add(pointlabel);
-				bugPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+				fixedPanel.add(label);
+				fixedPanel.add(label2);
+				fixedPanel.add(label3);
+				fixedPanel.add(label4);
+				fixedPanel.add(label5);
+				fixedPanel.add(label6);
+				fixedPanel.add(pointlabel);
+				fixedPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 			}
 		}
 
@@ -152,7 +236,6 @@ public class PersonalDisplay implements ActionListener {
 			String type = data.getType();
 			String condition = data.getCondition();
 			String line = data.getLine();
-			String author = data.getAuthor();
 
 			int point = data.getPoint();
 
@@ -162,7 +245,6 @@ public class PersonalDisplay implements ActionListener {
 			JLabel label4 = new JLabel("Abbrev : " + abbrev);
 			JLabel label5 = new JLabel("Type : " + type);
 			JLabel label6 = new JLabel("Line : " + line);
-			JLabel label7 = new JLabel("Author :" + author);
 			JLabel pointlabel = new JLabel("+ " + point + " points");
 
 			int fontSize = 15;
@@ -172,7 +254,6 @@ public class PersonalDisplay implements ActionListener {
 			setFont(label4, fontSize);
 			setFont(label5, fontSize);
 			setFont(label6, fontSize);
-			setFont(label7, fontSize);
 			setFont(pointlabel, fontSize);
 
 			pointlabel.setForeground(Color.red);
@@ -191,12 +272,11 @@ public class PersonalDisplay implements ActionListener {
 			rightPanel.add(label4);
 			rightPanel.add(label5);
 			rightPanel.add(label6);
-			rightPanel.add(label7);
 			rightPanel.add(pointlabel);
 			rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 		}
 
-		int newPoint = pData.getPoint();
+		int newPoint = pData.getTotalPoint();
 		JLabel score = new JLabel("+ " + newPoint + " points!");
 		score.setFont(new Font("Consolas", Font.BOLD, 30));
 		score.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -240,8 +320,8 @@ public class PersonalDisplay implements ActionListener {
 		revLabel.setFont(new Font("Consolas", Font.BOLD, 30));
 		revLabel.setForeground(new Color(0, 191, 255));
 
-		JLabel sumLabel = new JLabel("Total Points : "
-				+ account.getPersonalData(targetName).getPoint());
+		JLabel sumLabel = new JLabel("Total Score : "
+				+ account.getPersonalData(targetName).getTotalPoint());
 		setFont(sumLabel, 18);
 		sumLabel.setForeground(Color.RED);
 
@@ -249,7 +329,9 @@ public class PersonalDisplay implements ActionListener {
 		leftPanel.add(sumLabel);
 		leftPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-		ArrayList<BugData> dataList = account.getPersonalBugData(targetName);
+		ArrayList<BugData> dataList = account.getPersonalBugDataList(targetName);
+		Collections.sort(dataList, new IndexSort());
+
 		for (BugData data : dataList) {
 			int rank = data.getRank();
 			String abbrev = data.getAbbrev();
@@ -294,30 +376,24 @@ public class PersonalDisplay implements ActionListener {
 		// leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
 		// leftPanel.add(button);
 
-		centerPanel.add(bugPanel);
+		centerPanel.add(fixedPanel);
 		// panel.add(cpanel);
 
-		JScrollPane scrollpaneR = new JScrollPane(rightPanel);
 		scrollpaneR.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollpaneR.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		JScrollPane scrollpaneC = new JScrollPane(centerPanel);
 		scrollpaneC.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollpaneC.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		JScrollPane scrollpaneL = new JScrollPane(leftPanel);
 		scrollpaneL.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollpaneL.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		JSplitPane splitpaneR = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		splitpaneR.setDividerSize(3);
 		splitpaneR.setRightComponent(scrollpaneR);
 		splitpaneR.setLeftComponent(scrollpaneC);
 		// splitpaneR.setResizeWeight(1.0);
 
-		JSplitPane splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		splitpane.setDividerSize(5);
-
+		splitpaneR.setPreferredSize(null);
 		splitpane.setRightComponent(splitpaneR);
 		splitpane.setLeftComponent(scrollpaneL);
 
@@ -329,24 +405,15 @@ public class PersonalDisplay implements ActionListener {
 		// cpanel.setAlignmentX(0.5f);
 		// panel.add(cpanel);
 
+		splitpane.setPreferredSize(null);
 		_frame.add(splitpane, BorderLayout.CENTER);
 		_frame.setVisible(true);
 	}
+
 	private void setFont(JLabel label, int fontSize) {
 		label.setFont(new Font("Consolas", Font.BOLD, fontSize));
 		label.setHorizontalAlignment(JLabel.LEFT);
 		label.setVerticalAlignment(JLabel.TOP);
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		int command = Integer.parseInt(e.getActionCommand());
-		switch (command) {
-			case 1 :
-				_frame.getContentPane().removeAll();
-				new GitScanning(_frame);
-				break;
-			default :
-				break;
-		}
-	}
 }

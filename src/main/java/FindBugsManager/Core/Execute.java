@@ -21,15 +21,15 @@ public class Execute {
 	}
 
 	public void checkFixerName() {
-		diff = new DiffManager(_gitFile, _filePath);
-		blame = new BlameManager(_gitFile, _filePath);
-
-		diff.diffDriver();
-		blame.blameDriver();
+		// diff = new DiffManager(_gitFile, _filePath);
+		// blame = new BlameManager(_gitFile, _filePath);
+		//
+		// diff.diffDriver();
+		// blame.blameDriver();
 
 		// manager.checkEditedBugs(diff, blame);
 		manager.compareBugInfoLists();
-		manager.display();
+		// manager.display();
 
 	}
 }

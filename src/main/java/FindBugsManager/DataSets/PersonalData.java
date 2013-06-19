@@ -5,13 +5,14 @@ import java.util.ArrayList;
 public class PersonalData {
 
 	private int next = 100;
-	private int _point = 0;
+	// private int _point = 0;
 	private String _name = null;
 	// private String _name = "Satoshi Arai(Lab)";
 	private String job = "Beginner";
 	private int level = 1;
 
-	private ArrayList<BugInstanceSet> fixedList = new ArrayList<BugInstanceSet>();
+	private ArrayList<BugData> fixedList = new ArrayList<BugData>();
+	private ArrayList<String> nameList = new ArrayList<String>();
 
 	public PersonalData() {
 
@@ -21,9 +22,8 @@ public class PersonalData {
 		_name = name;
 	}
 
-	public PersonalData(String name, int point, ArrayList<BugInstanceSet> fixedList) {
+	public PersonalData(String name, ArrayList<BugData> fixedList) {
 		_name = name;
-		addPoint(point);
 		addFixedList(fixedList);
 	}
 
@@ -31,8 +31,16 @@ public class PersonalData {
 		return next;
 	}
 
-	public int getPoint() {
-		return _point;
+	public ArrayList<String> getNameList() {
+		return nameList;
+	}
+
+	public int getTotalPoint() {
+		int total = 0;
+		for (BugData data : fixedList) {
+			total += data.getPoint();
+		}
+		return total;
 	}
 
 	public String getName() {
@@ -47,15 +55,12 @@ public class PersonalData {
 		return level;
 	}
 
-	public ArrayList<BugInstanceSet> getInstanceList() {
+	public ArrayList<BugData> getInstanceList() {
 		return fixedList;
 	}
 
-	public void addFixedList(ArrayList<BugInstanceSet> list) {
+	public void addFixedList(ArrayList<BugData> list) {
 		fixedList.addAll(list);
 	}
 
-	public void addPoint(int point) {
-		_point += point;
-	}
 }
