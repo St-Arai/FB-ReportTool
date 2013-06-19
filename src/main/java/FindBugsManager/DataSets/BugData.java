@@ -28,12 +28,12 @@ public class BugData {
 
 	}
 
-	public BugData(BugInstanceSet info) {
+	public BugData(BugInstanceSet info, int bonus) {
 		_category = info.getBugInstance().getBugPattern().getCategory();
 		_abbrev = info.getBugInstance().getAbbrev();
 		_type = info.getBugInstance().getType();
 		_rank = info.getBugInstance().getBugRank();
-		_point = 21 - _rank;
+		_point = (21 - _rank) * bonus;
 		String priorityString = info.getBugInstance().getPriorityString();
 		if (priorityString.equals("優先度(高)")) {
 			_priority = "High";
