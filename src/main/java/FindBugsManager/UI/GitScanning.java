@@ -196,10 +196,11 @@ public class GitScanning implements ActionListener {
 		String selectedCommit = selectedCommitInfo.getCommitName();
 		String selectedComment = selectedCommitInfo.getCommitMessage().replaceAll("\n", "");
 		selectedComment = setValidCommitName(selectedComment, selectedIndex);
+		int miss = 0;
 		File currentOutput = new File(bugDataDirectory, selectedComment + ".xml");
 		if (!(currentOutput.exists())) {
 			System.out.println("Run FindBugs...");
-			checkoutAndRun(selectedCommit, selectedComment);
+			miss = checkoutAndRun(selectedCommit, selectedComment);
 		}
 		System.out.println("Now");
 		manager.createBugInfoList(currentOutput);
@@ -238,7 +239,7 @@ public class GitScanning implements ActionListener {
 				data.add(new BugData(set, bonus));
 			}
 		}
-		account.updatePersonalData(committer, data);
+		account.updatePersonalData(committer, data, miss);
 
 		String comId = selectedCommitInfo.getCommitName().substring(0, 4);
 		String preComId = targetCommitInfo.getCommitName().substring(0, 4);
@@ -249,11 +250,12 @@ public class GitScanning implements ActionListener {
 		manager.initBugInfoLists();
 	}
 
-	private void checkoutAndRun(String commitName, String commitComment) {
+	private int checkoutAndRun(String commitName, String commitComment) {
 		CheckoutManager check = new CheckoutManager();
 		check.checkoutCommand(commitName);
-		FindBugsManager.runFindbugs(commitComment, targetPath, bugDataDirectory);
+		int running = FindBugsManager.runFindbugs(commitComment, targetPath, bugDataDirectory);
 		check.backtoLatestRevision();
+		return running;
 	}
 
 	private String setValidCommitName(String selectedComment, int index) {
@@ -264,7 +266,8 @@ public class GitScanning implements ActionListener {
 		String comment = stb.toString();
 		int place = comment.indexOf(":");
 		if (place > 0) {
-			comment = comment.substring(0, place).replaceAll("'", "").replaceAll(".com", "");
+			comment = comment.substring(0, place).replaceAll("'", "").replaceAll("/", "")
+					.replaceAll(".com", "");
 		}
 		return comment;
 	}

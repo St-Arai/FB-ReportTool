@@ -1,7 +1,10 @@
 package FindBugsManager.FindBugs;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,34 +42,29 @@ public class FindBugsManager {
 		editedBugList = new ArrayList<BugInstanceSet>();
 	}
 
-	public static void runFindbugs(String selectedComment, String targetPath, File bugDataDirectory) {
+	public static int runFindbugs(String selectedComment, String targetPath, File bugDataDirectory) {
 
-		// File file = new File(bugDataDirectory, selectedComment + ".xml");
-		// try {
-		// System.out.println(file.getPath());
-		// if (file.createNewFile()) {
-		// System.out.println("Success.");
-		// }
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
+		ProcessBuilder pb1 = new ProcessBuilder("cmd.exe", "/C", "ant", "-f", antXML);
+		pb1.directory(new File("../"));
 
-		Runtime rt = Runtime.getRuntime();
-		Process p1 = null;
-		Process p2 = null;
+		ProcessBuilder pb2 = new ProcessBuilder("cmd.exe", "/C", "findbugs", "-textui", "-low",
+				"-xml", "-output", selectedComment + ".xml", "-project", targetPath, "-effort:min");
+		pb2.directory(bugDataDirectory);
+
 		try {
-			p1 = rt.exec(new String[]{"cmd.exe", "/C", "start", "ant", "-f", antXML}, null,
-					new File("../"));
-			p1.waitFor();
-			p2 = rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low", "-xml",
-					"-output", selectedComment + ".xml", "-project", targetPath, "-effort:min"},
-					null, bugDataDirectory);
-			p2.waitFor();
+			int eValue = 0;
+			eValue = cmdRun(pb1);
+			if (eValue != 0) {
+				System.out.println("Compile Error!");
+				return -1;
+			}
+			eValue = cmdRun(pb2);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
+		return 0;
 	}
 
 	public void createBugInfoList(File currentFile) {
@@ -240,6 +238,54 @@ public class FindBugsManager {
 
 	public void setCommitter(String committer) {
 		_committer = committer;
+	}
+
+	private static int cmdRun(ProcessBuilder pb) throws IOException, InterruptedException {
+		Process process = pb.start();
+		final InputStream in = process.getInputStream();
+		final InputStream ein = process.getErrorStream();
+
+		Runnable inputStreamThread = new Runnable() {
+			public void run() {
+				try {
+					String line = null;
+					System.out.println("Thread stdRun start");
+					BufferedReader br = new BufferedReader(new InputStreamReader(in));
+					while ((line = br.readLine()) != null) {
+						System.out.println(line);
+					}
+					System.out.println("Thread stdRun end");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		Runnable errStreamThread = new Runnable() {
+			public void run() {
+				try {
+					String errLine = null;
+					System.out.println("Thread errRun start");
+					BufferedReader ebr = new BufferedReader(new InputStreamReader(ein));
+					while ((errLine = ebr.readLine()) != null) {
+						System.out.println(errLine);
+					}
+					System.out.println("Thread errRun end");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+
+		Thread stdRun = new Thread(inputStreamThread);
+		Thread errRun = new Thread(errStreamThread);
+
+		stdRun.start();
+		errRun.start();
+
+		process.waitFor();
+		int exitValue = process.exitValue();
+		process.destroy();
+		return exitValue;
 	}
 
 	public void display() {

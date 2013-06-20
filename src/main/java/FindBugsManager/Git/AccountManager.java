@@ -27,15 +27,16 @@ public class AccountManager {
 		return nameList;
 	}
 
-	public void updatePersonalData(String name, ArrayList<BugData> bugList) {
+	public void updatePersonalData(String name, ArrayList<BugData> bugList, int missCount) {
 		for (PersonalData data : dataList) {
 			String comp = data.getName();
 			if (comp.equals(name)) {
 				data.addFixedList(bugList);
+				data.addMissCount(missCount);
 				return;
 			}
 		}
-		addPersonalData(new PersonalData(name, bugList));
+		addPersonalData(new PersonalData(name, bugList, missCount));
 	}
 
 	public ArrayList<PersonalData> getPersonalDataList() {

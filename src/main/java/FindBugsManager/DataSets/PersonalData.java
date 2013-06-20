@@ -10,6 +10,7 @@ public class PersonalData {
 	// private String _name = "Satoshi Arai(Lab)";
 	private String job = "Beginner";
 	private int level = 1;
+	private int _missCount = 0;
 
 	private ArrayList<BugData> fixedList = new ArrayList<BugData>();
 	private ArrayList<String> nameList = new ArrayList<String>();
@@ -22,9 +23,10 @@ public class PersonalData {
 		_name = name;
 	}
 
-	public PersonalData(String name, ArrayList<BugData> fixedList) {
+	public PersonalData(String name, ArrayList<BugData> fixedList, int missCount) {
 		_name = name;
 		addFixedList(fixedList);
+		addMissCount(missCount);
 	}
 
 	public int getRemain() {
@@ -55,6 +57,10 @@ public class PersonalData {
 		return level;
 	}
 
+	public int getMissCount() {
+		return _missCount;
+	}
+
 	public ArrayList<BugData> getInstanceList() {
 		return fixedList;
 	}
@@ -63,4 +69,7 @@ public class PersonalData {
 		fixedList.addAll(list);
 	}
 
+	public void addMissCount(int missCount) {
+		_missCount += missCount;
+	}
 }

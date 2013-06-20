@@ -279,7 +279,7 @@ public class PersonalDisplay {
 		}
 		JLabel newlabel = new JLabel(String.valueOf(newBugCount));
 		setFont(newlabel, 20);
-		rightPanel.add(newlabel);
+		rightPanel.add(newlabel, 9);
 
 		int newPoint = pData.getTotalPoint();
 		JLabel score = new JLabel("+ " + newPoint + " points!");

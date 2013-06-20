@@ -70,9 +70,7 @@ public class CommitManager {
 				message = message.substring(0, lastIndex) + " Conflict.";
 			}
 			info[i] = "<html>" + commit.getCommitTime() + "    :    " + commit.getCommitter()
-					+ "<br/>"
-					+ message.replaceAll("'", "").replaceAll("/", "").replaceAll(".com", "")
-					+ "</html>";
+					+ "<br/>" + message + "</html>";
 			i++;
 		}
 		return info;
