@@ -201,6 +201,7 @@ public class GitScanning implements ActionListener {
 			System.out.println("Run FindBugs...");
 			checkoutAndRun(selectedCommit, selectedComment);
 		}
+		System.out.println("Now");
 		manager.createBugInfoList(currentOutput);
 
 		String targetCommit = targetCommitInfo.getCommitName();
@@ -211,6 +212,7 @@ public class GitScanning implements ActionListener {
 			System.out.println("Run FindBugs...");
 			checkoutAndRun(targetCommit, targetComment);
 		}
+		System.out.println("Past");
 		manager.createPreBugInfoList(targetOutput);
 
 		int bonus = 1;

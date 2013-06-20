@@ -228,6 +228,7 @@ public class PersonalDisplay {
 			}
 		}
 
+		int newBugCount = 0;
 		for (BugData data : remainData) {
 			int rank = data.getRank();
 			String abbrev = data.getAbbrev();
@@ -259,6 +260,7 @@ public class PersonalDisplay {
 			pointlabel.setForeground(Color.red);
 
 			if (condition.equals("NEW")) {
+				newBugCount++;
 				JLabel label8 = new JLabel("New Bug!");
 				label8.setFont(new Font("Consolas", Font.BOLD, 18));
 				label8.setForeground(Color.MAGENTA);
@@ -275,6 +277,9 @@ public class PersonalDisplay {
 			rightPanel.add(pointlabel);
 			rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 		}
+		JLabel newlabel = new JLabel(String.valueOf(newBugCount));
+		setFont(newlabel, 20);
+		rightPanel.add(newlabel);
 
 		int newPoint = pData.getTotalPoint();
 		JLabel score = new JLabel("+ " + newPoint + " points!");

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import FindBugsManager.Core.Main;
 import FindBugsManager.Core.XMLReader;
 import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.Git.BlameManager;
@@ -26,6 +27,7 @@ public class FindBugsManager {
 	private ArrayList<BugInstanceSet> editedBugList = new ArrayList<BugInstanceSet>();
 
 	private String _committer = null;
+	private static String antXML = Main.getAntXML();
 
 	private FindBugsManager() {
 
@@ -53,7 +55,7 @@ public class FindBugsManager {
 		Process p1 = null;
 		Process p2 = null;
 		try {
-			p1 = rt.exec(new String[]{"cmd.exe", "/C", "ant", "-f", "build1-2.xml"}, null,
+			p1 = rt.exec(new String[]{"cmd.exe", "/C", "start", "ant", "-f", antXML}, null,
 					new File("../"));
 			p1.waitFor();
 			p2 = rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low", "-xml",
@@ -84,7 +86,11 @@ public class FindBugsManager {
 		} else {
 			preInfoList = reader.parseFindBugsXML(preInfoList, _file);
 			System.out.println(preInfoList.size());
-			for (int i = 0; i < infoList.size(); i++) {
+			int min = infoList.size();
+			if (infoList.size() > preInfoList.size()) {
+				min = preInfoList.size();
+			}
+			for (int i = 0; i < min; i++) {
 				System.out
 						.print(infoList.get(i).getBugInstance().getBugPattern().getAbbrev() + " ");
 				System.out.println(preInfoList.get(i).getBugInstance().getBugPattern().getAbbrev());
@@ -99,9 +105,11 @@ public class FindBugsManager {
 		ArrayList<String> newTypeList = new ArrayList<String>();
 
 		for (BugInstanceSet bugInfo : preInfoList) {
+			bugInfo.setEditType(EditType.NO_CHANGE);
 			preTypeList.add(bugInfo.getBugInstance().getBugPattern().getType());
 		}
 		for (BugInstanceSet bugInfo : infoList) {
+			bugInfo.setEditType(EditType.NO_CHANGE);
 			typeList.add(bugInfo.getBugInstance().getBugPattern().getType());
 		}
 
@@ -118,9 +126,16 @@ public class FindBugsManager {
 				editedTypeList.add(preType);
 			}
 		}
+
+		ArrayList<String> preCompareList = new ArrayList<String>(preTypeList);
 		for (String type : typeList) {
-			if (preTypeList.contains(type)) {
-				//
+			if (preCompareList.contains(type)) {
+				for (int i = 0; i < preCompareList.size(); i++) {
+					if (preCompareList.get(i).equals(type)) {
+						preCompareList.remove(i);
+						break;
+					}
+				}
 			} else {
 				newTypeList.add(type);
 			}
@@ -134,8 +149,6 @@ public class FindBugsManager {
 					preInfo.setAmender(_committer);
 					editedBugList.add(preInfo);
 					break;
-				} else {
-					preInfo.setEditType(EditType.NO_CHANGE);
 				}
 			}
 		}
@@ -143,12 +156,11 @@ public class FindBugsManager {
 		for (String name : newTypeList) {
 			for (int i = 0; i < infoList.size(); i++) {
 				BugInstanceSet info = infoList.get(i);
-				if (info.getBugInstance().getBugPattern().getType().equals(name)) {
+				String typeName = info.getBugInstance().getBugPattern().getType();
+				if (typeName.equals(name) && info.getEditType().equals(EditType.NO_CHANGE)) {
 					info.setEditType(EditType.NEW);
 					info.setAuthor(_committer);
 					break;
-				} else {
-					info.setEditType(EditType.NO_CHANGE);
 				}
 			}
 		}

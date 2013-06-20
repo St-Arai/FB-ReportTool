@@ -56,20 +56,23 @@ public class CommitManager {
 	}
 
 	public String[] getCommitList() {
-		String[] info = new String[commitLog.size()];
+		int length = commitLog.size();
+		String[] info = new String[length];
 		int i = 0;
 		for (CommitInfo commit : commitLog) {
 			// System.out.println(commit.getCommitName());
 			// System.out.println(commit.getCommitter());
 			// System.out.println(commit.getCommitTime());
 			// System.out.println(commit.getCommitMessage());
-			info[i] = "<html>"
-					+ commit.getCommitTime()
-					+ "    :    "
-					+ commit.getCommitter()
+			String message = String.valueOf(length - (i)) + ":" + commit.getCommitMessage();
+			int lastIndex = message.lastIndexOf("Conflicts:");
+			if (lastIndex > 0) {
+				message = message.substring(0, lastIndex) + " Conflict.";
+			}
+			info[i] = "<html>" + commit.getCommitTime() + "    :    " + commit.getCommitter()
 					+ "<br/>"
-					+ commit.getCommitMessage().replaceAll("'", "").replaceAll("/", "")
-							.replaceAll(".com", "") + "</html>";
+					+ message.replaceAll("'", "").replaceAll("/", "").replaceAll(".com", "")
+					+ "</html>";
 			i++;
 		}
 		return info;
