@@ -69,7 +69,9 @@ public class CommitManager {
 		String[] info = new String[length];
 		int i = 0;
 		for (CommitInfo commit : commitLog) {
-			String message = String.valueOf(length - (i)) + ":" + commit.getCommitMessage();
+			int number = length - i;
+			commit.setCommitNumber(number);
+			String message = String.valueOf(number) + ":" + commit.getCommitMessage();
 			int lastIndex = message.lastIndexOf("Conflicts:");
 			if (lastIndex > 0) {
 				message = message.substring(0, lastIndex) + " Conflict.";
@@ -88,6 +90,7 @@ public class CommitManager {
 		int count = info.length - 1;
 		ArrayList<CommitInfo> reverse = new ArrayList<CommitInfo>(commitLog);
 		Collections.reverse(reverse);
+		parentLog = new ArrayList<CommitInfo>();
 		for (CommitInfo commit : reverse) {
 			int time = commit.getCommitTime();
 			if (time == parentTime) {

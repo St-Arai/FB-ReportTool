@@ -8,7 +8,6 @@ import FindBugsManager.UI.Login;
 
 public class Main {
 
-	// private static final File gitFile = new File("../Experiment/.git");
 	private static final File gitFile = new File("../Experiment1-1/.git");
 	// private static final File gitFile = new File("../Experiment1-2/.git");
 	// private static final File gitFile = new File("../Experiment2-1/.git");

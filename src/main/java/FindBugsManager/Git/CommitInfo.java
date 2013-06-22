@@ -13,6 +13,7 @@ public class CommitInfo {
 	private String _date = null;
 	private String _message = null;
 
+	private int _number = 0;
 	private ArrayList<CommitInfo> _parents = null;
 
 	public CommitInfo(RevCommit revCommit) {
@@ -38,6 +39,10 @@ public class CommitInfo {
 		_date = new Date(longtime).toString();
 	}
 
+	public void setCommitNumber(int number){
+		_number = number;
+	}
+	
 	public String getCommitName() {
 		return _commit;
 	}
@@ -56,6 +61,10 @@ public class CommitInfo {
 
 	public String getCommitMessage() {
 		return _message;
+	}
+	
+	public int getCommitNumber(){
+		return _number;
 	}
 
 	public ArrayList<CommitInfo> getParentCommits() {
