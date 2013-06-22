@@ -12,6 +12,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang.math.NumberUtils;
+
 import FindBugsManager.Core.Execute;
 import FindBugsManager.Core.Main;
 import FindBugsManager.Core.Settings;
@@ -28,6 +30,7 @@ import FindBugsManager.Git.CommitManager;
 public class GitScanning implements ActionListener {
 
 	private ArrayList<CommitInfo> _commitLog = new ArrayList<CommitInfo>();
+	private ArrayList<CommitInfo> _parentLog = new ArrayList<CommitInfo>();
 
 	private File _file = Main.getGitFile();
 	private String _path = Main.getFilePath();
@@ -41,8 +44,8 @@ public class GitScanning implements ActionListener {
 	private JCheckBox chboxdouble = new JCheckBox("×2");
 	private JCheckBox chboxcateg = new JCheckBox("Category Bonus ×3");
 
-	private JComboBox<String> _checkoutBranches = new JComboBox<String>();
 	private JComboBox<String> _targetBranches = new JComboBox<String>();
+	private JComboBox<String> _parentBranches = new JComboBox<String>();
 	private JComboBox<String> _committerList = new JComboBox<String>();
 
 	private String[] comboData = {"CORRECTNESS", "SECURITY", "BAD_PRACTICE", "STYLE",
@@ -75,16 +78,22 @@ public class GitScanning implements ActionListener {
 		button2.addActionListener(this);
 		button3.addActionListener(this);
 		button4.addActionListener(this);
-		_checkoutBranches.addActionListener(this);
-		_targetBranches.addActionListener(this);
-		_committerList.addActionListener(this);
-		categoryList.addActionListener(this);
 
-		panel.add(_checkoutBranches);
+		_targetBranches.addActionListener(this);
+		_targetBranches.setActionCommand("TargetChanged");
+		_parentBranches.addActionListener(this);
+		_parentBranches.setActionCommand("ParentChanged");
+		_committerList.addActionListener(this);
+		_committerList.setActionCommand("CommitterChanged");
+
+		categoryList.addActionListener(this);
+		categoryList.setActionCommand("CategoryChanged");
+
+		panel.add(_targetBranches);
 		panel.add(updatebutton);
 		panel.add(button1);
 		panel.add(button2);
-		panel.add(_targetBranches);
+		panel.add(_parentBranches);
 		panel.add(_committerList);
 		panel.add(button3);
 		panel.add(button4);
@@ -100,13 +109,11 @@ public class GitScanning implements ActionListener {
 
 	private void initCommitInfo() {
 		commit.setCommitLogs();
-		String[] info = commit.getCommitList();
+		String[] info = commit.getAllCommitList();
 		commit.initBugFileList();
 
 		_commitLog = commit.getCommitLog();
-		_checkoutBranches = new JComboBox<String>(info);
 		_targetBranches = new JComboBox<String>(info);
-
 	}
 
 	private void initCommitterInfo() {
@@ -120,20 +127,22 @@ public class GitScanning implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
-		if (!(action.equals("comboBoxChanged"))) {
-			int commandNum = Integer.parseInt(action);
-			int selectedIndex = _checkoutBranches.getSelectedIndex();
-			int targetIndex = _targetBranches.getSelectedIndex();
+		int selectedIndex = _targetBranches.getSelectedIndex();
+		int targetIndex = _parentBranches.getSelectedIndex();
 
-			int committerNum = _committerList.getSelectedIndex();
-			int categIndex = categoryList.getSelectedIndex();
+		int committerNum = _committerList.getSelectedIndex();
+		int categIndex = categoryList.getSelectedIndex();
+
+		boolean isNumber = NumberUtils.isNumber(action);
+		if (isNumber) {
+			int commandNum = Integer.parseInt(action);
 
 			CommitInfo selectedCommitInfo = _commitLog.get(selectedIndex);
 			String selectedCommit = selectedCommitInfo.getCommitName();
 			String selectedComment = selectedCommitInfo.getCommitMessage().replaceAll("\n", "");
 			selectedComment = setValidCommitName(selectedComment, selectedIndex);
 
-			CommitInfo targetCommitInfo = _commitLog.get(targetIndex);
+			CommitInfo targetCommitInfo = _parentLog.get(targetIndex);
 			String targetCommit = targetCommitInfo.getCommitName();
 			String targetComment = targetCommitInfo.getCommitMessage().replaceAll("\n", "");
 			targetComment = setValidCommitName(targetComment, targetIndex);
@@ -180,16 +189,28 @@ public class GitScanning implements ActionListener {
 				default :
 					break;
 			}
-		} else if (action.equals("comboBoxChanged")) {
+		} else if (action.equals("TargetChanged")) {
+			_parentBranches.removeAllItems();
+			CommitInfo selectedCommitInfo = _commitLog.get(selectedIndex);
+			ArrayList<CommitInfo> parents = selectedCommitInfo.getParentCommits();
+			if (parents.size() > 1) {
+				for (CommitInfo parent : parents) {
+					_parentBranches.addItem(commit.getCommitList(parent));
+				}
+			} else {
+				_parentBranches.addItem(commit.getCommitList(parents.get(0)));
+			}
+			_parentBranches.repaint();
+
+			_parentLog = commit.getParentLog();
 		} else {
-			System.out.println(action);
+			// System.out.println(action);
 		}
 	}
-
 	private void outputBugsResult(int selectedIndex, int targetIndex, int categIndex) {
 		FindBugsManager manager = FindBugsManager.getInstance();
 		CommitInfo selectedCommitInfo = _commitLog.get(selectedIndex);
-		CommitInfo targetCommitInfo = _commitLog.get(targetIndex);
+		CommitInfo targetCommitInfo = _parentLog.get(targetIndex);
 		String committer = selectedCommitInfo.getCommitter();
 		manager.setCommitter(committer);
 

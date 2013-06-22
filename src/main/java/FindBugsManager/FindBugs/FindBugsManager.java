@@ -47,8 +47,9 @@ public class FindBugsManager {
 		ProcessBuilder pb1 = new ProcessBuilder("cmd.exe", "/C", "ant", "-f", antXML);
 		pb1.directory(new File("../"));
 
-		ProcessBuilder pb2 = new ProcessBuilder("cmd.exe", "/C", "findbugs", "-textui", "-low",
-				"-xml", "-output", selectedComment + ".xml", "-project", targetPath, "-effort:min");
+		ProcessBuilder pb2 = new ProcessBuilder("cmd.exe", "/C", "start", "findbugs", "-textui",
+				"-low", "-xml", "-output", selectedComment + ".xml", "-project", targetPath,
+				"-effort:min");
 		pb2.directory(bugDataDirectory);
 
 		try {
