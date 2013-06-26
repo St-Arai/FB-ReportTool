@@ -7,9 +7,8 @@ import javax.swing.JFrame;
 import FindBugsManager.UI.Login;
 
 public class Main {
-
-	private static final File gitFile = new File("../FBsample/.git");
-	// private static final File gitFile = new File("D:/Users/ALEXANDRITE/Projects/FBsample/.git");
+	private static final File gitFile = new File("../Experiment1-1/.git");
+	private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/Experiment1-1.fbp";
 
 	private static final String filePath = "src/src/FBsample.java";
 
@@ -27,5 +26,9 @@ public class Main {
 
 	public static String getFilePath() {
 		return filePath;
+	}
+
+	public static String getTargetPath() {
+		return targetPath;
 	}
 }

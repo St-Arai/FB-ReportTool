@@ -33,7 +33,8 @@ public class XMLManager {
 	private String bugOutputPath = Settings.getOutputPath();
 	private final File bugOutputDirectory = new File(bugOutputPath);
 
-	public void createXML(FindBugsManager manager, String id) {
+	public void createXML(FindBugsManager manager, String id, int bonus, String targetCateg,
+			int categBonus) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = null;
 		try {
@@ -63,7 +64,7 @@ public class XMLManager {
 				Element instance = document.createElement("BugInstance");
 				fixedBugs.appendChild(instance);
 
-				createNodes(document, info, instance);
+				createNodes(document, info, instance, bonus, targetCateg, categBonus);
 
 				Element amender = document.createElement("Amender");
 				instance.appendChild(amender);
@@ -80,12 +81,8 @@ public class XMLManager {
 				Element instance = document.createElement("BugInstance");
 				remainBugs.appendChild(instance);
 
-				createNodes(document, info, instance);
+				createNodes(document, info, instance, 1, null, 1);
 
-				Element author = document.createElement("Author");
-				instance.appendChild(author);
-				Text authorText = document.createTextNode(info.getAuthor());
-				author.appendChild(authorText);
 			}
 
 			TransformerFactory tf = TransformerFactory.newInstance();
@@ -122,7 +119,8 @@ public class XMLManager {
 		os.close();
 	}
 
-	private void createNodes(Document document, BugInstanceSet info, Element instance) {
+	private void createNodes(Document document, BugInstanceSet info, Element instance, int bonus,
+			String targetCateg, int categBonus) {
 		Element category = document.createElement("Category");
 		instance.appendChild(category);
 		Text categoryText = document.createTextNode(info.getBugInstance().getBugPattern()
@@ -146,8 +144,16 @@ public class XMLManager {
 
 		Element point = document.createElement("Point");
 		instance.appendChild(point);
-		Text pointText = document.createTextNode(String.valueOf(21 - info.getBugInstance()
-				.getBugRank()));
+
+		String categ = info.getBugInstance().getBugPattern().getCategory();
+		Text pointText = null;
+		if (categ.equals(targetCateg)) {
+			pointText = document.createTextNode(String.valueOf((21 - info.getBugInstance()
+					.getBugRank()) * (bonus * categBonus)));
+		} else {
+			pointText = document.createTextNode(String.valueOf((21 - info.getBugInstance()
+					.getBugRank()) * bonus));
+		}
 		point.appendChild(pointText);
 
 		Element priority = document.createElement("Priority");
@@ -174,5 +180,4 @@ public class XMLManager {
 				+ String.valueOf(info.getEndLine()));
 		line.appendChild(lineText);
 	}
-
 }

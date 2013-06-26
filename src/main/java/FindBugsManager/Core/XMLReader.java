@@ -53,23 +53,29 @@ public class XMLReader {
 					if (childElement.getTagName().equals("BugInstance")) {
 						int bugPriority = Integer.parseInt(childElement.getAttribute("priority"));
 						String bugType = childElement.getAttribute("type");
-
-						NodeList grandChild = childElement.getChildNodes();
-						for (int j = 0; j < grandChild.getLength(); j++) {
-							Node grand = grandChild.item(j);
-							if (grand instanceof Element) {
-								Element grandElement = (Element) grand;
-								if (grandElement.getTagName().equals("SourceLine")) {
-									startLine = Integer
-											.parseInt(grandElement.getAttribute("start"));
-									endLine = Integer.parseInt(grandElement.getAttribute("end"));
+						String remChan = childElement.getAttribute("removedByChange");
+						if (!(remChan.equals("true"))) {
+							NodeList grandChild = childElement.getChildNodes();
+							for (int j = 0; j < grandChild.getLength(); j++) {
+								Node grand = grandChild.item(j);
+								if (grand instanceof Element) {
+									Element grandElement = (Element) grand;
+									if (grandElement.getTagName().equals("SourceLine")) {
+										String start = grandElement.getAttribute("start");
+										String end = grandElement.getAttribute("end");
+										if (!(start.isEmpty()) || !(end.isEmpty())) {
+											startLine = Integer.parseInt(start);
+											endLine = Integer.parseInt(end);
+										}
+										break;
+									}
 								}
 							}
-						}
-						BugInstance instance = new BugInstance(bugType, bugPriority);
+							BugInstance instance = new BugInstance(bugType, bugPriority);
 
-						BugInstanceSet info = new BugInstanceSet(instance, startLine, endLine);
-						bugInfoList.add(info);
+							BugInstanceSet info = new BugInstanceSet(instance, startLine, endLine);
+							bugInfoList.add(info);
+						}
 					}
 				}
 			}
@@ -165,8 +171,6 @@ public class XMLReader {
 						bugFixer = greatElement.getTextContent();
 					} else if (tagName.equals("Author")) {
 						bugAuthor = greatElement.getTextContent();
-					} else {
-						//
 					}
 				}
 			}

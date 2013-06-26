@@ -32,7 +32,7 @@ public class CommitManager {
 		_file = file;
 	}
 
-	public void findCommiter() {
+	public void setCommitLogs() {
 		Repository repos = null;
 		try {
 			repos = new FileRepository(_file);
@@ -55,19 +55,20 @@ public class CommitManager {
 		}
 	}
 
-	public void setCommitLogs() {
+	public String[] getCommitList() {
 		String[] info = new String[commitLog.size()];
 		int i = 0;
 		for (CommitInfo commit : commitLog) {
-			System.out.println(commit.getCommitName());
-			System.out.println(commit.getCommitter());
-			System.out.println(commit.getCommitTime());
-			System.out.println(commit.getCommitMessage());
-			info[i] = "<html>" + commit.getCommitTime() + "    :    " + commit.getCommitter()
-					+ "<br/>" + commit.getCommitMessage() + "</html>";
+			info[i] = "<html>"
+					+ commit.getCommitTime()
+					+ "    :    "
+					+ commit.getCommitter()
+					+ "<br/>"
+					+ commit.getCommitMessage().replaceAll("'", "").replaceAll("/", "")
+							.replaceAll(".com", "") + "</html>";
 			i++;
 		}
-		checkoutBranches = new JComboBox<String>(info);
+		return info;
 	}
 
 	public void initBugFileList() {
@@ -84,6 +85,10 @@ public class CommitManager {
 
 	public ArrayList<CommitInfo> getCommitLog() {
 		return commitLog;
+	}
+
+	public int getCommitLength() {
+		return commitLog.size();
 	}
 
 	public JComboBox<String> getBranchList() {
