@@ -3,12 +3,13 @@ package FindBugsManager.Git;
 import java.util.ArrayList;
 
 import FindBugsManager.DataSets.BugData;
-import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.DataSets.PersonalData;
 
 public class AccountManager {
 
 	private static AccountManager instance = new AccountManager();
+
+	private ArrayList<String> nameList = new ArrayList<String>();
 
 	private ArrayList<PersonalData> dataList = new ArrayList<PersonalData>();
 
@@ -18,18 +19,24 @@ public class AccountManager {
 
 	public void addPersonalData(PersonalData newData) {
 		dataList.add(newData);
+		if (!(nameList.contains(newData.getName()))) {
+			nameList.add(newData.getName());
+		}
+	}
+	public ArrayList<String> getNameList() {
+		return nameList;
 	}
 
-	public void updatePersonalData(String name, int point, ArrayList<BugInstanceSet> bugList) {
+	public void updatePersonalData(String name, ArrayList<BugData> bugList, int missCount) {
 		for (PersonalData data : dataList) {
 			String comp = data.getName();
 			if (comp.equals(name)) {
-				data.addPoint(point);
 				data.addFixedList(bugList);
+				data.addMissCount(missCount);
 				return;
 			}
 		}
-		addPersonalData(new PersonalData(name, point, bugList));
+		addPersonalData(new PersonalData(name, bugList, missCount));
 	}
 
 	public ArrayList<PersonalData> getPersonalDataList() {
@@ -47,14 +54,10 @@ public class AccountManager {
 		return pdata;
 	}
 
-	public ArrayList<BugData> getPersonalBugData(String name) {
-		ArrayList<BugData> bugData = new ArrayList<BugData>();
+	public ArrayList<BugData> getPersonalBugDataList(String name) {
 		PersonalData data = getPersonalData(name);
-		ArrayList<BugInstanceSet> bugList = data.getInstanceList();
-		for (BugInstanceSet info : bugList) {
-			bugData.add(new BugData(info));
-		}
-		return bugData;
+		ArrayList<BugData> bugList = data.getInstanceList();
+		return bugList;
 	}
 
 	public static AccountManager getInstance() {

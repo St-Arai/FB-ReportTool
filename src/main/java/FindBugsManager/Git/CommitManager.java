@@ -3,6 +3,7 @@ package FindBugsManager.Git;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.JComboBox;
 
@@ -18,7 +19,8 @@ import FindBugsManager.Core.Settings;
 
 public class CommitManager {
 
-	private transient ArrayList<CommitInfo> commitLog = new ArrayList<CommitInfo>();
+	private ArrayList<CommitInfo> commitLog = new ArrayList<CommitInfo>();
+	private ArrayList<CommitInfo> parentLog = new ArrayList<CommitInfo>();
 
 	private JComboBox<String> checkoutBranches = new JComboBox<String>();
 	private JComboBox<String> targetBugFile = new JComboBox<String>();
@@ -32,7 +34,7 @@ public class CommitManager {
 		_file = file;
 	}
 
-	public void findCommiter() {
+	public void setCommitLogs() {
 		Repository repos = null;
 		try {
 			repos = new FileRepository(_file);
@@ -40,11 +42,18 @@ public class CommitManager {
 
 			LogCommand log = git.log();
 			for (RevCommit revCommit : log.call()) {
-				String commit = revCommit.getName();
-				String author = revCommit.getAuthorIdent().getName();
-				int time = revCommit.getCommitTime();
+
 				String message = revCommit.getFullMessage();
-				commitLog.add(new CommitInfo(commit, author, time, message));
+				System.out.print(message);
+				RevCommit[] parents = revCommit.getParents();
+				System.out.println("======================");
+				for (RevCommit com : parents) {
+					System.out.println(com.getAuthorIdent().getName());
+					System.out.print(com.getFullMessage());
+					System.out.println("======================");
+				}
+				System.out.println("\n");
+				commitLog.add(new CommitInfo(revCommit, parents));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -55,19 +64,43 @@ public class CommitManager {
 		}
 	}
 
-	public void setCommitLogs() {
-		String[] info = new String[commitLog.size()];
+	public String[] getAllCommitList() {
+		int length = commitLog.size();
+		String[] info = new String[length];
 		int i = 0;
 		for (CommitInfo commit : commitLog) {
-			System.out.println(commit.getCommitName());
-			System.out.println(commit.getCommitter());
-			System.out.println(commit.getCommitTime());
-			System.out.println(commit.getCommitMessage());
-			info[i] = "<html>" + commit.getCommitTime() + "    :    " + commit.getCommitter()
-					+ "<br/>" + commit.getCommitMessage() + "</html>";
+			int number = length - i;
+			commit.setCommitNumber(number);
+			String message = String.valueOf(number) + ":" + commit.getCommitMessage();
+			int lastIndex = message.lastIndexOf("Conflicts:");
+			if (lastIndex > 0) {
+				message = message.substring(0, lastIndex) + " Conflict.";
+			}
+			info[i] = "<html>" + commit.getCommitDate() + "    :    " + commit.getCommitter()
+					+ "<br/>" + message + "</html>";
 			i++;
 		}
-		checkoutBranches = new JComboBox<String>(info);
+		return info;
+	}
+
+	public String getCommitList(CommitInfo parent) {
+		int parentTime = parent.getCommitTime();
+		String parentInfo = "null";
+		String[] info = getAllCommitList();
+		int count = info.length - 1;
+		ArrayList<CommitInfo> reverse = new ArrayList<CommitInfo>(commitLog);
+		Collections.reverse(reverse);
+		parentLog = new ArrayList<CommitInfo>();
+		for (CommitInfo commit : reverse) {
+			int time = commit.getCommitTime();
+			if (time == parentTime) {
+				parentLog.add(commit);
+				parentInfo = info[count];
+				break;
+			}
+			count--;
+		}
+		return parentInfo;
 	}
 
 	public void initBugFileList() {
@@ -84,6 +117,14 @@ public class CommitManager {
 
 	public ArrayList<CommitInfo> getCommitLog() {
 		return commitLog;
+	}
+
+	public ArrayList<CommitInfo> getParentLog() {
+		return parentLog;
+	}
+
+	public int getCommitLength() {
+		return commitLog.size();
 	}
 
 	public JComboBox<String> getBranchList() {

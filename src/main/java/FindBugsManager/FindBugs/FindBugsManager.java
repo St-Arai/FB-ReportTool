@@ -1,12 +1,16 @@
 package FindBugsManager.FindBugs;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import FindBugsManager.Core.Main;
 import FindBugsManager.Core.XMLReader;
 import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.Git.BlameManager;
@@ -26,6 +30,7 @@ public class FindBugsManager {
 	private ArrayList<BugInstanceSet> editedBugList = new ArrayList<BugInstanceSet>();
 
 	private String _committer = null;
+	private static String antXML = Main.getAntXML();
 
 	private FindBugsManager() {
 
@@ -37,38 +42,55 @@ public class FindBugsManager {
 		editedBugList = new ArrayList<BugInstanceSet>();
 	}
 
-	public static void runFindbugs(String selectedComment, String targetPath, File bugDataDirectory) {
-		Runtime rt = Runtime.getRuntime();
-		Process p = null;
+	public static int runFindbugs(String selectedComment, String targetPath, File bugDataDirectory) {
+
+		ProcessBuilder pb1 = new ProcessBuilder("cmd.exe", "/C", "ant", "-f", antXML);
+		pb1.directory(new File("../"));
+
+		ProcessBuilder pb2 = new ProcessBuilder("cmd.exe", "/C", "findbugs", "-textui", "-low",
+				"-xml", "-output", selectedComment + ".xml", "-project", targetPath, "-effort:min");
+		pb2.directory(bugDataDirectory);
+
 		try {
-			p = rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low", "-xml",
-					"-output", selectedComment + ".xml", targetPath}, null, bugDataDirectory);
-			p.waitFor();
+			int eValue = 0;
+			eValue = cmdRun(pb1);
+			if (eValue != 0) {
+				System.out.println("Compile Error!");
+				return -1;
+			}
+			eValue = cmdRun(pb2);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
+		return 0;
 	}
 
 	public void createBugInfoList(File currentFile) {
 		_file = currentFile;
-		if (_file.length() == 0) {
-			// nothing
-		} else {
+		if (_file.length() != 0) {
 			infoList = reader.parseFindBugsXML(infoList, _file);
+			System.out.println(infoList.size());
 		}
 	}
 
 	public void createPreBugInfoList(File previousFile) {
 		_file = previousFile;
-		if (_file.length() == 0) {
-			// nothing
-		} else {
+		if (_file.length() != 0) {
 			preInfoList = reader.parseFindBugsXML(preInfoList, _file);
+			System.out.println(preInfoList.size());
+			int min = infoList.size();
+			if (infoList.size() > preInfoList.size()) {
+				min = preInfoList.size();
+			}
+			for (int i = 0; i < min; i++) {
+				System.out
+						.print(infoList.get(i).getBugInstance().getBugPattern().getAbbrev() + " ");
+				System.out.println(preInfoList.get(i).getBugInstance().getBugPattern().getAbbrev());
+			}
 		}
 	}
-
 	public void compareBugInfoLists() {
 		ArrayList<String> preTypeList = new ArrayList<String>();
 		ArrayList<String> typeList = new ArrayList<String>();
@@ -77,9 +99,11 @@ public class FindBugsManager {
 		ArrayList<String> newTypeList = new ArrayList<String>();
 
 		for (BugInstanceSet bugInfo : preInfoList) {
+			bugInfo.setEditType(EditType.NO_CHANGE);
 			preTypeList.add(bugInfo.getBugInstance().getBugPattern().getType());
 		}
 		for (BugInstanceSet bugInfo : infoList) {
+			bugInfo.setEditType(EditType.NO_CHANGE);
 			typeList.add(bugInfo.getBugInstance().getBugPattern().getType());
 		}
 
@@ -96,37 +120,41 @@ public class FindBugsManager {
 				editedTypeList.add(preType);
 			}
 		}
+
+		ArrayList<String> preCompareList = new ArrayList<String>(preTypeList);
 		for (String type : typeList) {
-			if (preTypeList.contains(type)) {
-				//
+			if (preCompareList.contains(type)) {
+				for (int i = 0; i < preCompareList.size(); i++) {
+					if (preCompareList.get(i).equals(type)) {
+						preCompareList.remove(i);
+						break;
+					}
+				}
 			} else {
 				newTypeList.add(type);
 			}
 		}
 
-		for (int i = 0; i < preInfoList.size(); i++) {
-			for (String name : editedTypeList) {
+		for (String name : editedTypeList) {
+			for (int i = 0; i < preInfoList.size(); i++) {
 				BugInstanceSet preInfo = preInfoList.get(i);
 				if (preInfo.getBugInstance().getBugPattern().getType().equals(name)) {
 					preInfo.setEditType(EditType.EDIT);
 					preInfo.setAmender(_committer);
 					editedBugList.add(preInfo);
 					break;
-				} else {
-					preInfo.setEditType(EditType.NO_CHANGE);
 				}
 			}
 		}
 
-		for (int i = 0; i < infoList.size(); i++) {
-			for (String name : newTypeList) {
+		for (String name : newTypeList) {
+			for (int i = 0; i < infoList.size(); i++) {
 				BugInstanceSet info = infoList.get(i);
-				if (info.getBugInstance().getBugPattern().getType().equals(name)) {
+				String typeName = info.getBugInstance().getBugPattern().getType();
+				if (typeName.equals(name) && info.getEditType().equals(EditType.NO_CHANGE)) {
 					info.setEditType(EditType.NEW);
 					info.setAuthor(_committer);
 					break;
-				} else {
-					info.setEditType(EditType.NO_CHANGE);
 				}
 			}
 		}
@@ -147,10 +175,8 @@ public class FindBugsManager {
 
 		if (!editedBugList.isEmpty()) {
 			int editedBugStart = 0;
-			// int preBugEnd = 0;
 			for (BugInstanceSet editedBugInfo : editedBugList) {
 				editedBugStart = editedBugInfo.getStartLine();
-				// preBugEnd = bugInfo.getEndLine();
 				for (BugInstanceSet info : infoList) {
 					if (info.getEditedStartLine() <= editedBugStart
 							&& editedBugStart <= info.getEditedEndLine()) {
@@ -179,6 +205,7 @@ public class FindBugsManager {
 		Collections.sort(editedBugList, new IndexSort());
 		Collections.sort(infoList, new IndexSort());
 	}
+
 	public static FindBugsManager getInstance() {
 		return instance;
 	}
@@ -205,6 +232,54 @@ public class FindBugsManager {
 
 	public void setCommitter(String committer) {
 		_committer = committer;
+	}
+
+	private static int cmdRun(ProcessBuilder pb) throws IOException, InterruptedException {
+		Process process = pb.start();
+		final InputStream in = process.getInputStream();
+		final InputStream ein = process.getErrorStream();
+
+		Runnable inputStreamThread = new Runnable() {
+			public void run() {
+				try {
+					String line = null;
+					System.out.println("Thread stdRun start");
+					BufferedReader br = new BufferedReader(new InputStreamReader(in));
+					while ((line = br.readLine()) != null) {
+						System.out.println(line);
+					}
+					System.out.println("Thread stdRun end");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		Runnable errStreamThread = new Runnable() {
+			public void run() {
+				try {
+					String errLine = null;
+					System.out.println("Thread errRun start");
+					BufferedReader ebr = new BufferedReader(new InputStreamReader(ein));
+					while ((errLine = ebr.readLine()) != null) {
+						System.out.println(errLine);
+					}
+					System.out.println("Thread errRun end");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+
+		Thread stdRun = new Thread(inputStreamThread);
+		Thread errRun = new Thread(errStreamThread);
+
+		stdRun.start();
+		errRun.start();
+
+		process.waitFor();
+		int exitValue = process.exitValue();
+		process.destroy();
+		return exitValue;
 	}
 
 	public void display() {

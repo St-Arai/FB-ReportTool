@@ -7,14 +7,18 @@ import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import org.apache.commons.lang.math.NumberUtils;
 
 import FindBugsManager.Core.Execute;
 import FindBugsManager.Core.Main;
 import FindBugsManager.Core.Settings;
 import FindBugsManager.Core.XMLManager;
+import FindBugsManager.DataSets.BugData;
 import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.DataSets.PersonalData;
 import FindBugsManager.FindBugs.FindBugsManager;
@@ -26,25 +30,32 @@ import FindBugsManager.Git.CommitManager;
 public class GitScanning implements ActionListener {
 
 	private ArrayList<CommitInfo> _commitLog = new ArrayList<CommitInfo>();
+	private ArrayList<CommitInfo> _parentLog = new ArrayList<CommitInfo>();
 
 	private File _file = Main.getGitFile();
-	private String _path = Main.getFilePath();
 
 	private CommitManager commit = new CommitManager(_file);
 	private AccountManager account = AccountManager.getInstance();
+	private CheckoutManager check = new CheckoutManager();
 
 	private JFrame _frame = null;
 	private JPanel panel = new JPanel();
 
-	private JComboBox<String> _checkoutBranches = new JComboBox<String>();
+	private JCheckBox chboxdouble = new JCheckBox("×2");
+	private JCheckBox chboxcateg = new JCheckBox("Category Bonus ×3");
+
 	private JComboBox<String> _targetBranches = new JComboBox<String>();
+	private JComboBox<String> _parentBranches = new JComboBox<String>();
 	private JComboBox<String> _committerList = new JComboBox<String>();
+
+	private String[] comboData = {"CORRECTNESS", "SECURITY", "BAD_PRACTICE", "STYLE",
+			"PERFORMANCE", "MALICIOUS_CODE", "MT_CORRECTNESS", "I18N"};
+	private JComboBox<String> categoryList = new JComboBox<String>(comboData);
 
 	private String bugDataPath = Settings.getBugDataStorePath();
 	private final File bugDataDirectory = new File(bugDataPath);
 
-	private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/FBsample/bin/src/FBsample.class";
-	// private static final String targetPath = "../FBsample/bin/src/FBsample.class";
+	private String targetPath = Main.getTargetPath();
 
 	public GitScanning(JFrame mainFrame) {
 		_frame = mainFrame;
@@ -52,39 +63,62 @@ public class GitScanning implements ActionListener {
 		initCommitInfo();
 		initCommitterInfo();
 
+		JButton updatebutton = new JButton("Update");
+		updatebutton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				check.backtoLatestRevision();
+				_frame.remove(panel);
+				new GitScanning(_frame);
+			}
+		});
 		JButton button1 = new JButton("Run FindBugs");
 		JButton button2 = new JButton("Make BugInfo File");
-		JButton button3 = new JButton("Show Result");
+		JButton button3 = new JButton("Show Personal Result");
+		JButton button4 = new JButton("Show All Result");
+
 		button1.setActionCommand("1");
 		button2.setActionCommand("2");
 		button3.setActionCommand("3");
+		button4.setActionCommand("4");
 		button1.addActionListener(this);
 		button2.addActionListener(this);
 		button3.addActionListener(this);
-		_checkoutBranches.addActionListener(this);
-		_targetBranches.addActionListener(this);
-		_committerList.addActionListener(this);
+		button4.addActionListener(this);
 
-		panel.add(_checkoutBranches);
+		_targetBranches.addActionListener(this);
+		_targetBranches.setActionCommand("TargetChanged");
+		_parentBranches.addActionListener(this);
+		_parentBranches.setActionCommand("ParentChanged");
+		_committerList.addActionListener(this);
+		_committerList.setActionCommand("CommitterChanged");
+
+		categoryList.addActionListener(this);
+		categoryList.setActionCommand("CategoryChanged");
+
+		panel.add(_targetBranches);
+		panel.add(updatebutton);
 		panel.add(button1);
 		panel.add(button2);
-		panel.add(_targetBranches);
+		panel.add(_parentBranches);
 		panel.add(_committerList);
 		panel.add(button3);
+		panel.add(button4);
+		panel.add(chboxdouble);
+		panel.add(chboxcateg);
+		panel.add(categoryList);
 
 		_frame.add(panel, BorderLayout.CENTER);
 
 		_frame.setVisible(true);
 
 	}
-
 	private void initCommitInfo() {
-		commit.findCommiter();
 		commit.setCommitLogs();
+		String[] info = commit.getAllCommitList();
 		commit.initBugFileList();
 
 		_commitLog = commit.getCommitLog();
-		_checkoutBranches = commit.getBranchList();
+		_targetBranches = new JComboBox<String>(info);
 	}
 
 	private void initCommitterInfo() {
@@ -98,88 +132,186 @@ public class GitScanning implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
-		if (!(action.equals("comboBoxChanged"))) {
+		int targetIndex = _targetBranches.getSelectedIndex();
+		int parentIndex = _parentBranches.getSelectedIndex();
+
+		int committerNum = _committerList.getSelectedIndex();
+		int categIndex = categoryList.getSelectedIndex();
+
+		boolean isNumber = NumberUtils.isNumber(action);
+		if (isNumber) {
+			if (parentIndex < 0) {
+				return;
+			}
 			int commandNum = Integer.parseInt(action);
-			int index = _checkoutBranches.getSelectedIndex();
-			int committerNum = _committerList.getSelectedIndex();
-			String selectedCommit = _commitLog.get(index).getCommitName();
-			String selectedComment = _commitLog.get(index).getCommitMessage().replaceAll("\n", "");
 
-			String previousCommit = _commitLog.get(index + 1).getCommitName();
-			String previousComment = _commitLog.get(index + 1).getCommitMessage()
-					.replaceAll("\n", "");
+			CommitInfo targetCommitInfo = _commitLog.get(targetIndex);
+			String targetCommit = targetCommitInfo.getCommitName();
+			String targetComment = targetCommitInfo.getCommitMessage().replaceAll("\n", "");
+			int commitNumber = targetCommitInfo.getCommitNumber();
+			targetComment = setValidCommitName(targetComment, commitNumber);
 
-			CheckoutManager check = new CheckoutManager();
+			CommitInfo parentCommitInfo = _parentLog.get(parentIndex);
+			String parentCommit = parentCommitInfo.getCommitName();
+			String parentComment = parentCommitInfo.getCommitMessage().replaceAll("\n", "");
+			int parentNumber = parentCommitInfo.getCommitNumber();
+			parentComment = setValidCommitName(parentComment, parentNumber);
+
 			switch (commandNum) {
 				case 1 :
-					check.checkoutCommand(previousCommit);
-					FindBugsManager.runFindbugs(previousComment, targetPath, bugDataDirectory);
-
-					check.checkoutCommand(selectedCommit);
-					FindBugsManager.runFindbugs(selectedComment, targetPath, bugDataDirectory);
+					File[] files = bugDataDirectory.listFiles();
+					boolean preExist = false;
+					boolean curExist = false;
+					for (File file : files) {
+						if ((parentComment + ".xml").equals(file.getName())) {
+							preExist = true;
+						} else if ((targetComment + ".xml").equals(file.getName())) {
+							curExist = true;
+						}
+					}
+					if (curExist == false) {
+						checkoutAndRun(targetCommit, targetComment);
+					}
+					if (preExist == false) {
+						checkoutAndRun(parentCommit, parentComment);
+					} else {
+						check.backtoLatestRevision();
+					}
 					break;
 				case 2 :
-					outputBugsResult(index);
+					outputBugsResult(targetIndex, parentIndex, categIndex);
 					initCommitterInfo();
 					check.backtoLatestRevision();
 					break;
 				case 3 :
-					String target = _committerList.getItemAt(committerNum);
-					new PersonalDisplay(new JFrame(), target);
+					if (committerNum >= 0) {
+						String target = _committerList.getItemAt(committerNum);
+						new PersonalDisplay(new JFrame(), target);
+					}
+					break;
+				case 4 :
+					new AllResultsDisplay(new JFrame());
 					break;
 				default :
 					break;
 			}
-		} else if (action.equals("comboBoxChanged")) {
-			_targetBranches.removeAllItems();
-			int index = _checkoutBranches.getSelectedIndex();
-			String item = _checkoutBranches.getItemAt(index + 1);
-			_targetBranches.addItem(item);
-			_targetBranches.repaint();
-		} else {
-			System.out.println(action);
+		} else if (action.equals("TargetChanged")) {
+			_parentBranches.removeAllItems();
+			CommitInfo targetCommitInfo = _commitLog.get(targetIndex);
+			ArrayList<CommitInfo> parents = targetCommitInfo.getParentCommits();
+			if (parents.size() > 1) {
+				for (CommitInfo parent : parents) {
+					_parentBranches.addItem(commit.getCommitList(parent));
+				}
+			} else {
+				_parentBranches.addItem(commit.getCommitList(parents.get(0)));
+			}
+			_parentBranches.repaint();
+
+			_parentLog = commit.getParentLog();
 		}
 	}
 
-	private void outputBugsResult(int index) {
+	private void outputBugsResult(int targetIndex, int parentIndex, int categIndex) {
 		FindBugsManager manager = FindBugsManager.getInstance();
-		String committer = _commitLog.get(index).getCommitter();
+		CommitInfo targetCommitInfo = _commitLog.get(targetIndex);
+		CommitInfo parentCommitInfo = _parentLog.get(parentIndex);
+		String committer = targetCommitInfo.getCommitter();
 		manager.setCommitter(committer);
 
-		XMLManager xml = new XMLManager();
-		String comId = _commitLog.get(index).getCommitName().substring(0, 4);
-		String preComId = _commitLog.get(index + 1).getCommitName().substring(0, 4);
-		String id = String.valueOf(index + 1) + "to" + String.valueOf(index) + "_" + comId
-				+ preComId;
+		String targetCommit = targetCommitInfo.getCommitName();
+		String targetComment = targetCommitInfo.getCommitMessage().replaceAll("\n", "");
+		int commitNumber = targetCommitInfo.getCommitNumber();
+		targetComment = setValidCommitName(targetComment, commitNumber);
 
-		String current = _commitLog.get(index).getCommitMessage().replaceAll("\n", "");
-		File currentOutput = new File(bugDataDirectory, current + ".xml");
-
+		int miss = 0;
+		File currentOutput = new File(bugDataDirectory, targetComment + ".xml");
 		if (!(currentOutput.exists())) {
-			FindBugsManager.runFindbugs(current, targetPath, bugDataDirectory);
+			System.out.println("Run FindBugs...");
+			miss = checkoutAndRun(targetCommit, targetComment);
 		}
+		System.out.println("Now");
 		manager.createBugInfoList(currentOutput);
 
-		String target = _commitLog.get(index + 1).getCommitMessage().replaceAll("\n", "");
-		File targetOutput = new File(bugDataDirectory, target + ".xml");
+		String parentCommit = parentCommitInfo.getCommitName();
+		String parentComment = parentCommitInfo.getCommitMessage().replaceAll("\n", "");
+		int parentNumber = parentCommitInfo.getCommitNumber();
+		parentComment = setValidCommitName(parentComment, parentNumber);
 
-		if (!(targetOutput.exists())) {
-			System.out.println("Not Found a previous file...");
-			return;
+		File parentOutput = new File(bugDataDirectory, parentComment + ".xml");
+		if (!(parentOutput.exists())) {
+			System.out.println("Run FindBugs...");
+			checkoutAndRun(parentCommit, parentComment);
 		}
-		manager.createPreBugInfoList(targetOutput);
+		System.out.println("Past");
+		manager.createPreBugInfoList(parentOutput);
 
-		Execute execute = new Execute(_file, _path);
+		int bonus = 1;
+		String category = null;
+		int categBonus = 1;
+		if (chboxdouble.isSelected()) {
+			bonus *= 2;
+		}
+		if (chboxcateg.isSelected()) {
+			category = categoryList.getItemAt(categIndex);
+			categBonus *= 3;
+		}
+
+		Execute execute = new Execute();
 		execute.checkFixerName();
 
 		ArrayList<BugInstanceSet> edited = manager.getEditedBugList();
-		int sum = 0;
-		for (BugInstanceSet info : edited) {
-			sum += (21 - info.getBugInstance().getBugRank());
+		ArrayList<BugData> data = new ArrayList<BugData>();
+		for (BugInstanceSet set : edited) {
+			if (set.getBugInstance().getBugPattern().getCategory().equals(category)) {
+				data.add(new BugData(set, bonus * categBonus));
+			} else {
+				data.add(new BugData(set, bonus));
+			}
 		}
-		account.updatePersonalData(committer, sum, edited);
+		account.updatePersonalData(committer, data, miss);
 
-		xml.createXML(manager, id);
+		String comId = targetCommitInfo.getCommitName().substring(0, 4);
+		String preComId = parentCommitInfo.getCommitName().substring(0, 4);
+		String id = setOutputFileName(commitNumber, parentNumber, comId, preComId);
+
+		XMLManager xml = new XMLManager();
+		xml.createXML(manager, id, bonus, category, categBonus);
 		manager.initBugInfoLists();
+	}
+
+	private int checkoutAndRun(String commitName, String commitComment) {
+		CheckoutManager check = new CheckoutManager();
+		check.checkoutCommand(commitName);
+		int running = FindBugsManager.runFindbugs(commitComment, targetPath, bugDataDirectory);
+		check.backtoLatestRevision();
+		return running;
+	}
+
+	private String setValidCommitName(String selectedComment, int index) {
+		String strNumber = String.valueOf(index);
+		StringBuilder stb = new StringBuilder();
+		stb.append(strNumber);
+		stb.append(selectedComment);
+		String comment = stb.toString();
+		int place = comment.indexOf(":");
+		if (place > 0) {
+			comment = comment.substring(0, place).replaceAll("'", "").replaceAll("/", "")
+					.replaceAll(".com", "");
+		}
+		return comment;
+	}
+
+	private String setOutputFileName(int targetNumber, int parentNumber, String comId,
+			String preComId) {
+		StringBuilder stb = new StringBuilder();
+		stb.append(String.valueOf(parentNumber));
+		stb.append("to");
+		stb.append(String.valueOf(targetNumber));
+		stb.append("_");
+		stb.append(comId);
+		stb.append(preComId);
+		String id = stb.toString();
+		return id;
 	}
 }

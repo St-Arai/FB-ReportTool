@@ -1,6 +1,9 @@
 package FindBugsManager.Git;
 
 import java.sql.Date;
+import java.util.ArrayList;
+
+import org.eclipse.jgit.revwalk.RevCommit;
 
 public class CommitInfo {
 
@@ -10,16 +13,36 @@ public class CommitInfo {
 	private String _date = null;
 	private String _message = null;
 
-	public CommitInfo(String commit, String committer, int time, String message) {
-		_commit = commit;
-		_committer = committer;
-		_time = time;
-		_message = message;
+	private int _number = 0;
+	private ArrayList<CommitInfo> _parents = null;
+
+	public CommitInfo(RevCommit revCommit) {
+		setCommitInfo(revCommit);
+	}
+
+	public CommitInfo(RevCommit revCommit, RevCommit[] parents) {
+		setCommitInfo(revCommit);
+
+		_parents = new ArrayList<CommitInfo>();
+		for (RevCommit commit : parents) {
+			_parents.add(new CommitInfo(commit));
+		}
+	}
+
+	private void setCommitInfo(RevCommit revCommit) {
+		_commit = revCommit.getName();
+		_committer = revCommit.getAuthorIdent().getName();
+		_time = revCommit.getCommitTime();
+		_message = revCommit.getFullMessage();
 
 		long longtime = (long) _time * 1000;
 		_date = new Date(longtime).toString();
 	}
 
+	public void setCommitNumber(int number){
+		_number = number;
+	}
+	
 	public String getCommitName() {
 		return _commit;
 	}
@@ -28,11 +51,23 @@ public class CommitInfo {
 		return _committer;
 	}
 
-	public String getCommitTime() {
+	public int getCommitTime() {
+		return _time;
+	}
+
+	public String getCommitDate() {
 		return _date;
 	}
 
 	public String getCommitMessage() {
 		return _message;
+	}
+	
+	public int getCommitNumber(){
+		return _number;
+	}
+
+	public ArrayList<CommitInfo> getParentCommits() {
+		return _parents;
 	}
 }
