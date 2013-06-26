@@ -30,7 +30,6 @@ public class GitScanning implements ActionListener {
 	private ArrayList<CommitInfo> _commitLog = new ArrayList<CommitInfo>();
 
 	private File _file = Main.getGitFile();
-	private String _path = Main.getFilePath();
 
 	private CommitManager commit = new CommitManager(_file);
 	private AccountManager account = AccountManager.getInstance();
@@ -224,7 +223,7 @@ public class GitScanning implements ActionListener {
 			categBonus *= 3;
 		}
 
-		Execute execute = new Execute(_file, _path);
+		Execute execute = new Execute();
 		execute.checkFixerName();
 
 		ArrayList<BugInstanceSet> edited = manager.getEditedBugList();

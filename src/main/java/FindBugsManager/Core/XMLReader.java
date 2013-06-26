@@ -54,9 +54,7 @@ public class XMLReader {
 						int bugPriority = Integer.parseInt(childElement.getAttribute("priority"));
 						String bugType = childElement.getAttribute("type");
 						String remChan = childElement.getAttribute("removedByChange");
-						if (remChan.equals("true")) {
-							//
-						} else {
+						if (!(remChan.equals("true"))) {
 							NodeList grandChild = childElement.getChildNodes();
 							for (int j = 0; j < grandChild.getLength(); j++) {
 								Node grand = grandChild.item(j);
@@ -65,9 +63,7 @@ public class XMLReader {
 									if (grandElement.getTagName().equals("SourceLine")) {
 										String start = grandElement.getAttribute("start");
 										String end = grandElement.getAttribute("end");
-										if (start.isEmpty() || end.isEmpty()) {
-											//
-										} else {
+										if (!(start.isEmpty()) || !(end.isEmpty())) {
 											startLine = Integer.parseInt(start);
 											endLine = Integer.parseInt(end);
 										}
@@ -175,8 +171,6 @@ public class XMLReader {
 						bugFixer = greatElement.getTextContent();
 					} else if (tagName.equals("Author")) {
 						bugAuthor = greatElement.getTextContent();
-					} else {
-						//
 					}
 				}
 			}

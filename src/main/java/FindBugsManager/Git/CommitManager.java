@@ -59,10 +59,6 @@ public class CommitManager {
 		String[] info = new String[commitLog.size()];
 		int i = 0;
 		for (CommitInfo commit : commitLog) {
-			// System.out.println(commit.getCommitName());
-			// System.out.println(commit.getCommitter());
-			// System.out.println(commit.getCommitTime());
-			// System.out.println(commit.getCommitMessage());
 			info[i] = "<html>"
 					+ commit.getCommitTime()
 					+ "    :    "
@@ -73,7 +69,6 @@ public class CommitManager {
 			i++;
 		}
 		return info;
-		// checkoutBranches = new JComboBox<String>(info);
 	}
 
 	public void initBugFileList() {
