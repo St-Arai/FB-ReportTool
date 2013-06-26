@@ -69,9 +69,7 @@ public class FindBugsManager {
 
 	public void createBugInfoList(File currentFile) {
 		_file = currentFile;
-		if (_file.length() == 0) {
-			// nothing
-		} else {
+		if (_file.length() != 0) {
 			infoList = reader.parseFindBugsXML(infoList, _file);
 			System.out.println(infoList.size());
 		}
@@ -79,9 +77,7 @@ public class FindBugsManager {
 
 	public void createPreBugInfoList(File previousFile) {
 		_file = previousFile;
-		if (_file.length() == 0) {
-			// nothing
-		} else {
+		if (_file.length() != 0) {
 			preInfoList = reader.parseFindBugsXML(preInfoList, _file);
 			System.out.println(preInfoList.size());
 			int min = infoList.size();
@@ -179,10 +175,8 @@ public class FindBugsManager {
 
 		if (!editedBugList.isEmpty()) {
 			int editedBugStart = 0;
-			// int preBugEnd = 0;
 			for (BugInstanceSet editedBugInfo : editedBugList) {
 				editedBugStart = editedBugInfo.getStartLine();
-				// preBugEnd = bugInfo.getEndLine();
 				for (BugInstanceSet info : infoList) {
 					if (info.getEditedStartLine() <= editedBugStart
 							&& editedBugStart <= info.getEditedEndLine()) {

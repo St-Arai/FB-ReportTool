@@ -82,11 +82,6 @@ public class XMLManager {
 				remainBugs.appendChild(instance);
 
 				createNodes(document, info, instance, 1, null, 1);
-
-				// Element author = document.createElement("Author");
-				// instance.appendChild(author);
-				// Text authorText = document.createTextNode(info.getAuthor());
-				// author.appendChild(authorText);
 			}
 
 			TransformerFactory tf = TransformerFactory.newInstance();

@@ -4,27 +4,13 @@ import java.io.File;
 
 import javax.swing.JFrame;
 
+import FindBugsManager.Git.PullManager;
 import FindBugsManager.UI.Login;
 
 public class Main {
 
-	private static final File gitFile = new File("../Experiment1-1/.git");
-	// private static final File gitFile = new File("../Experiment1-2/.git");
-	// private static final File gitFile = new File("../Experiment2-1/.git");
-	// private static final File gitFile = new File("../Experiment2-2/.git");
-	// private static final File gitFile = new File("../ExperimentTest/.git");
-	// private static final File gitFile = new File("D:/Users/ALEXANDRITE/Projects/FBsample/.git");
-
-	// private static final String targetPath =
-	// "D:/Users/ALEXANDRITE/Projects/FBsample/bin/src/FBsample.class";
-	private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/Experiment1-1.fbp";
-	// private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/Experiment1-2.fbp";
-	// private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/Experiment2-1.fbp";
-	// private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/Experiment2-2.fbp";
-	// private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/ExperimentTest.fbp";
-	// private static final String targetPath = "D:/Users/ALEXANDRITE/Projects/FBsample.fbp";
-	// private static final String targetPath = "";
-	// private static final String targetPath = "../FBsample/bin/src/FBsample.class";
+	private static final File gitFile = new File(Settings.getPath11());
+	private static final String targetPath = Settings.getFbpPath11();
 
 	private static final String antXMLPath = "build1-1.xml";
 	private static final String filePath = "src/src/FBsample.java";
@@ -35,6 +21,9 @@ public class Main {
 
 	public static void main(String[] args) {
 		new Login(new JFrame());
+		PullManager pull = new PullManager();
+		Thread pullThread = new Thread(pull);
+		pullThread.start();
 	}
 
 	public static File getGitFile() {
@@ -52,4 +41,5 @@ public class Main {
 	public static String getAntXML() {
 		return antXMLPath;
 	}
+
 }

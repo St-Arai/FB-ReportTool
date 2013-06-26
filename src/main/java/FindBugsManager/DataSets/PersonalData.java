@@ -5,9 +5,7 @@ import java.util.ArrayList;
 public class PersonalData {
 
 	private int next = 100;
-	// private int _point = 0;
 	private String _name = null;
-	// private String _name = "Satoshi Arai(Lab)";
 	private String job = "Beginner";
 	private int level = 1;
 	private int _missCount = 0;
