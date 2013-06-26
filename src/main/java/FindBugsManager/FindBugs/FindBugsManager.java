@@ -38,12 +38,18 @@ public class FindBugsManager {
 	}
 
 	public static void runFindbugs(String selectedComment, String targetPath, File bugDataDirectory) {
+
 		Runtime rt = Runtime.getRuntime();
-		Process p = null;
+		Process p1 = null;
+		Process p2 = null;
 		try {
-			p = rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low", "-xml",
-					"-output", selectedComment + ".xml", targetPath}, null, bugDataDirectory);
-			p.waitFor();
+			p1 = rt.exec(new String[]{"cmd.exe", "/C", "ant", "-f", "build1-2.xml"}, null,
+					new File("../"));
+			p1.waitFor();
+			p2 = rt.exec(new String[]{"cmd.exe", "/C", "findbugs", "-textui", "-low", "-xml",
+					"-output", selectedComment + ".xml", "-project", targetPath, "-effort:min"},
+					null, bugDataDirectory);
+			p2.waitFor();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (InterruptedException e1) {
@@ -53,22 +59,24 @@ public class FindBugsManager {
 
 	public void createBugInfoList(File currentFile) {
 		_file = currentFile;
-		if (_file.length() == 0) {
-			// nothing
-		} else {
+		if (_file.length() != 0) {
 			infoList = reader.parseFindBugsXML(infoList, _file);
+			System.out.println(infoList.size());
 		}
 	}
 
 	public void createPreBugInfoList(File previousFile) {
 		_file = previousFile;
-		if (_file.length() == 0) {
-			// nothing
-		} else {
+		if (_file.length() != 0) {
 			preInfoList = reader.parseFindBugsXML(preInfoList, _file);
+			System.out.println(preInfoList.size());
+			for (int i = 0; i < infoList.size(); i++) {
+				System.out
+						.print(infoList.get(i).getBugInstance().getBugPattern().getAbbrev() + " ");
+				System.out.println(preInfoList.get(i).getBugInstance().getBugPattern().getAbbrev());
+			}
 		}
 	}
-
 	public void compareBugInfoLists() {
 		ArrayList<String> preTypeList = new ArrayList<String>();
 		ArrayList<String> typeList = new ArrayList<String>();
@@ -97,15 +105,13 @@ public class FindBugsManager {
 			}
 		}
 		for (String type : typeList) {
-			if (preTypeList.contains(type)) {
-				//
-			} else {
+			if (!(preTypeList.contains(type))) {
 				newTypeList.add(type);
 			}
 		}
 
-		for (int i = 0; i < preInfoList.size(); i++) {
-			for (String name : editedTypeList) {
+		for (String name : editedTypeList) {
+			for (int i = 0; i < preInfoList.size(); i++) {
 				BugInstanceSet preInfo = preInfoList.get(i);
 				if (preInfo.getBugInstance().getBugPattern().getType().equals(name)) {
 					preInfo.setEditType(EditType.EDIT);
@@ -118,8 +124,8 @@ public class FindBugsManager {
 			}
 		}
 
-		for (int i = 0; i < infoList.size(); i++) {
-			for (String name : newTypeList) {
+		for (String name : newTypeList) {
+			for (int i = 0; i < infoList.size(); i++) {
 				BugInstanceSet info = infoList.get(i);
 				if (info.getBugInstance().getBugPattern().getType().equals(name)) {
 					info.setEditType(EditType.NEW);
@@ -147,10 +153,8 @@ public class FindBugsManager {
 
 		if (!editedBugList.isEmpty()) {
 			int editedBugStart = 0;
-			// int preBugEnd = 0;
 			for (BugInstanceSet editedBugInfo : editedBugList) {
 				editedBugStart = editedBugInfo.getStartLine();
-				// preBugEnd = bugInfo.getEndLine();
 				for (BugInstanceSet info : infoList) {
 					if (info.getEditedStartLine() <= editedBugStart
 							&& editedBugStart <= info.getEditedEndLine()) {
@@ -179,6 +183,7 @@ public class FindBugsManager {
 		Collections.sort(editedBugList, new IndexSort());
 		Collections.sort(infoList, new IndexSort());
 	}
+
 	public static FindBugsManager getInstance() {
 		return instance;
 	}

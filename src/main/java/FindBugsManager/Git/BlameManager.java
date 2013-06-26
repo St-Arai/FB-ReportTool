@@ -20,7 +20,7 @@ public class BlameManager {
 	private FindBugsManager manager = FindBugsManager.getInstance();
 
 	private BlameResult result = null;
-	private transient ArrayList<BugInstanceSet> infoList = manager.getBugInfoList();
+	private ArrayList<BugInstanceSet> infoList = manager.getBugInfoList();
 
 	private File _file = null;
 	private String _path = null;
