@@ -130,8 +130,6 @@ public class FindBugsManager {
 						break;
 					}
 				}
-			} else {
-				newTypeList.add(type);
 			}
 		}
 
@@ -162,7 +160,6 @@ public class FindBugsManager {
 		Collections.sort(editedBugList, new IndexSort());
 		Collections.sort(infoList, new IndexSort());
 	}
-
 	public void checkEditedBugs(DiffManager diff, BlameManager blame) {
 		editedBugList = new ArrayList<BugInstanceSet>();
 

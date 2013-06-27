@@ -63,7 +63,7 @@ public class XMLReader {
 									if (grandElement.getTagName().equals("SourceLine")) {
 										String start = grandElement.getAttribute("start");
 										String end = grandElement.getAttribute("end");
-										if (!(start.isEmpty()) && (end.isEmpty())) {
+										if (!(start.isEmpty()) && !(end.isEmpty())) {
 											startLine = Integer.parseInt(start);
 											endLine = Integer.parseInt(end);
 										}
