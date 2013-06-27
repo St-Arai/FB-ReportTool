@@ -37,6 +37,7 @@ public class GitScanning implements ActionListener {
 	private CommitManager commit = new CommitManager(_file);
 	private AccountManager account = AccountManager.getInstance();
 	private CheckoutManager check = new CheckoutManager();
+	private Execute execute = Execute.getInctance();
 
 	private JFrame _frame = null;
 	private JPanel panel = new JPanel();
@@ -132,6 +133,8 @@ public class GitScanning implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
+		execute.setPullStop();
+
 		int targetIndex = _targetBranches.getSelectedIndex();
 		int parentIndex = _parentBranches.getSelectedIndex();
 
@@ -210,9 +213,11 @@ public class GitScanning implements ActionListener {
 
 			_parentLog = commit.getParentLog();
 		}
+		execute.setPullResume();
 	}
 
 	private void outputBugsResult(int targetIndex, int parentIndex, int categIndex) {
+
 		FindBugsManager manager = FindBugsManager.getInstance();
 		CommitInfo targetCommitInfo = _commitLog.get(targetIndex);
 		CommitInfo parentCommitInfo = _parentLog.get(parentIndex);
@@ -256,8 +261,6 @@ public class GitScanning implements ActionListener {
 			category = categoryList.getItemAt(categIndex);
 			categBonus *= 3;
 		}
-
-		Execute execute = new Execute();
 		execute.checkFixerName();
 
 		ArrayList<BugInstanceSet> edited = manager.getEditedBugList();
@@ -278,6 +281,7 @@ public class GitScanning implements ActionListener {
 		XMLManager xml = new XMLManager();
 		xml.createXML(manager, id, bonus, category, categBonus);
 		manager.initBugInfoLists();
+
 	}
 
 	private int checkoutAndRun(String commitName, String commitComment) {
