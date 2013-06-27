@@ -8,6 +8,7 @@ public class Execute {
 	private PullManager pull = new PullManager();
 
 	private static final Execute execute = new Execute();
+
 	private Execute() {
 
 	}
@@ -16,20 +17,20 @@ public class Execute {
 		manager.compareBugInfoLists();
 	}
 
-	protected void startPullThread() {
-		Thread pullThread = new Thread(pull);
-		pullThread.start();
+	public void startPullThread() {
+		pull.startAutoPull();
 	}
 
-	public void endPullThread() {
+	public void stopPullThread() {
 		pull.terminateAutoPull();
 	}
 
-	public void setPullStop() {
-		pull.pullStop();
+	public void pauseAutoPull() {
+		pull.threadPause();
 	}
-	public void setPullResume() {
-		pull.pullResume();
+
+	public void resumeAutoPull() {
+		pull.threadResume();
 	}
 
 	public static Execute getInctance() {

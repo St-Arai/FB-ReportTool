@@ -58,7 +58,7 @@ public class FindBugsManager {
 				System.out.println("Compile Error!");
 				return -1;
 			}
-			eValue = cmdRun(pb2);
+			cmdRun(pb2);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (InterruptedException e1) {
@@ -91,6 +91,7 @@ public class FindBugsManager {
 			}
 		}
 	}
+
 	public void compareBugInfoLists() {
 		ArrayList<String> preTypeList = new ArrayList<String>();
 		ArrayList<String> typeList = new ArrayList<String>();
@@ -160,6 +161,7 @@ public class FindBugsManager {
 		Collections.sort(editedBugList, new IndexSort());
 		Collections.sort(infoList, new IndexSort());
 	}
+
 	public void checkEditedBugs(DiffManager diff, BlameManager blame) {
 		editedBugList = new ArrayList<BugInstanceSet>();
 

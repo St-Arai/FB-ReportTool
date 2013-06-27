@@ -17,21 +17,21 @@ public class PullManager implements Runnable {
 
 	public void run() {
 		CommandLine command = new CommandLine("cmd.exe");
-		command.addArguments(new String[]{"/C", "start", "git", "pull", "origin", "master"});
+		command.addArguments(new String[]{"/C", "git", "pull", "origin", "master"});
 
 		DefaultExecutor exe = new DefaultExecutor();
 		exe.setWorkingDirectory(new File("../Experiment1-1"));
 		try {
 			exe.setExitValue(0);
 			while (_autoPullFlg) {
-				Thread.sleep(2000);
+				Thread.sleep(1000);
 				synchronized (this) {
 					while (_threadWait) {
 						wait();
 					}
 				}
 				exe.execute(command);
-				Thread.sleep(2000);
+				Thread.sleep(3000);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -40,15 +40,21 @@ public class PullManager implements Runnable {
 		}
 	}
 
+	public void startAutoPull() {
+		_autoPullFlg = true;
+		Thread pullThread = new Thread(this);
+		pullThread.start();
+	}
+
 	public void terminateAutoPull() {
 		_autoPullFlg = false;
 	}
 
-	public synchronized void pullStop() {
+	public synchronized void threadPause() {
 		_threadWait = true;
 	}
 
-	public synchronized void pullResume() {
+	public synchronized void threadResume() {
 		_threadWait = false;
 		notifyAll();
 	}
