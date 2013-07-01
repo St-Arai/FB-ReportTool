@@ -37,12 +37,14 @@ public class GitScanning implements ActionListener {
 	private CommitManager commit = new CommitManager(_file);
 	private AccountManager account = AccountManager.getInstance();
 	private CheckoutManager check = new CheckoutManager();
+	private Execute execute = Execute.getInctance();
 
 	private JFrame _frame = null;
 	private JPanel panel = new JPanel();
 
-	private JCheckBox chboxdouble = new JCheckBox("×2");
-	private JCheckBox chboxcateg = new JCheckBox("Category Bonus ×3");
+	private JCheckBox chboxDouble = new JCheckBox("×2");
+	private JCheckBox chboxCateg = new JCheckBox("Category Bonus ×3");
+	private JCheckBox chboxAuto = new JCheckBox("Auto Pull");
 
 	private JComboBox<String> _targetBranches = new JComboBox<String>();
 	private JComboBox<String> _parentBranches = new JComboBox<String>();
@@ -103,15 +105,27 @@ public class GitScanning implements ActionListener {
 		panel.add(_committerList);
 		panel.add(button3);
 		panel.add(button4);
-		panel.add(chboxdouble);
-		panel.add(chboxcateg);
+		panel.add(chboxDouble);
+		panel.add(chboxCateg);
 		panel.add(categoryList);
+
+		chboxAuto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (chboxAuto.isSelected()) {
+					execute.startPullThread();
+				} else {
+					execute.stopPullThread();
+				}
+			}
+		});
+		panel.add(chboxAuto);
 
 		_frame.add(panel, BorderLayout.CENTER);
 
 		_frame.setVisible(true);
 
 	}
+
 	private void initCommitInfo() {
 		commit.setCommitLogs();
 		String[] info = commit.getAllCommitList();
@@ -132,6 +146,8 @@ public class GitScanning implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
+		execute.pauseAutoPull();
+
 		int targetIndex = _targetBranches.getSelectedIndex();
 		int parentIndex = _parentBranches.getSelectedIndex();
 
@@ -210,9 +226,11 @@ public class GitScanning implements ActionListener {
 
 			_parentLog = commit.getParentLog();
 		}
+		execute.resumeAutoPull();
 	}
 
 	private void outputBugsResult(int targetIndex, int parentIndex, int categIndex) {
+
 		FindBugsManager manager = FindBugsManager.getInstance();
 		CommitInfo targetCommitInfo = _commitLog.get(targetIndex);
 		CommitInfo parentCommitInfo = _parentLog.get(parentIndex);
@@ -249,15 +267,13 @@ public class GitScanning implements ActionListener {
 		int bonus = 1;
 		String category = null;
 		int categBonus = 1;
-		if (chboxdouble.isSelected()) {
+		if (chboxDouble.isSelected()) {
 			bonus *= 2;
 		}
-		if (chboxcateg.isSelected()) {
+		if (chboxCateg.isSelected()) {
 			category = categoryList.getItemAt(categIndex);
 			categBonus *= 3;
 		}
-
-		Execute execute = new Execute();
 		execute.checkFixerName();
 
 		ArrayList<BugInstanceSet> edited = manager.getEditedBugList();
@@ -278,6 +294,7 @@ public class GitScanning implements ActionListener {
 		XMLManager xml = new XMLManager();
 		xml.createXML(manager, id, bonus, category, categBonus);
 		manager.initBugInfoLists();
+
 	}
 
 	private int checkoutAndRun(String commitName, String commitComment) {

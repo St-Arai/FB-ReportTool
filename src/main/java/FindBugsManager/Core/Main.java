@@ -4,7 +4,6 @@ import java.io.File;
 
 import javax.swing.JFrame;
 
-import FindBugsManager.Git.PullManager;
 import FindBugsManager.UI.Login;
 
 public class Main {
@@ -21,9 +20,6 @@ public class Main {
 
 	public static void main(String[] args) {
 		new Login(new JFrame());
-		PullManager pull = new PullManager();
-		Thread pullThread = new Thread(pull);
-		pullThread.start();
 	}
 
 	public static File getGitFile() {

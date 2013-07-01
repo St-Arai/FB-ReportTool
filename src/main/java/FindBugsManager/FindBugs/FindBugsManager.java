@@ -53,12 +53,12 @@ public class FindBugsManager {
 
 		try {
 			int eValue = 0;
-			eValue = cmdRun(pb1);
+			eValue = launchExternalProcess(pb1);
 			if (eValue != 0) {
 				System.out.println("Compile Error!");
 				return -1;
 			}
-			eValue = cmdRun(pb2);
+			launchExternalProcess(pb2);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (InterruptedException e1) {
@@ -91,6 +91,7 @@ public class FindBugsManager {
 			}
 		}
 	}
+
 	public void compareBugInfoLists() {
 		ArrayList<String> preTypeList = new ArrayList<String>();
 		ArrayList<String> typeList = new ArrayList<String>();
@@ -160,6 +161,7 @@ public class FindBugsManager {
 		Collections.sort(editedBugList, new IndexSort());
 		Collections.sort(infoList, new IndexSort());
 	}
+
 	public void checkEditedBugs(DiffManager diff, BlameManager blame) {
 		editedBugList = new ArrayList<BugInstanceSet>();
 
@@ -231,7 +233,8 @@ public class FindBugsManager {
 		_committer = committer;
 	}
 
-	private static int cmdRun(ProcessBuilder pb) throws IOException, InterruptedException {
+	private static int launchExternalProcess(ProcessBuilder pb) throws IOException,
+			InterruptedException {
 		Process process = pb.start();
 		final InputStream in = process.getInputStream();
 		final InputStream ein = process.getErrorStream();
