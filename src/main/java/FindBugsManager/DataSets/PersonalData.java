@@ -11,7 +11,6 @@ public class PersonalData {
 	private int _missCount = 0;
 
 	private ArrayList<BugData> fixedList = new ArrayList<BugData>();
-	private ArrayList<String> nameList = new ArrayList<String>();
 
 	public PersonalData() {
 
@@ -29,10 +28,6 @@ public class PersonalData {
 
 	public int getRemain() {
 		return next;
-	}
-
-	public ArrayList<String> getNameList() {
-		return nameList;
 	}
 
 	public int getTotalPoint() {
@@ -63,11 +58,19 @@ public class PersonalData {
 		return fixedList;
 	}
 
+	public void addFixerData(BugData data) {
+		fixedList.add(data);
+	}
+
 	public void addFixedList(ArrayList<BugData> list) {
 		fixedList.addAll(list);
 	}
 
 	public void addMissCount(int missCount) {
 		_missCount += missCount;
+	}
+
+	public void initFixedData() {
+		fixedList = new ArrayList<BugData>();
 	}
 }

@@ -16,6 +16,7 @@ import org.xml.sax.SAXException;
 
 import FindBugsManager.DataSets.BugData;
 import FindBugsManager.DataSets.BugInstanceSet;
+import FindBugsManager.Git.AccountManager;
 import edu.umd.cs.findbugs.BugInstance;
 
 public class XMLReader {
@@ -93,24 +94,29 @@ public class XMLReader {
 	}
 
 	public void createLatestBugLists() {
-		createBugLists(_filepath);
+		createFixedBugList(_filepath);
+		createRemainBugLists(_filepath);
 	}
 
 	public void createAllBugLists() {
 		ArrayList<String> pathList = new ArrayList<String>();
 		File[] files = bugDataDirectory.listFiles();
 		for (File file : files) {
-			String path = "../bugOutput/Comparisons/" + file.getName();
-			if (!(path.equals("bugData.xml"))) {
+			String fileName = file.getName();
+			if (!(fileName.equals("bugData.xml"))) {
+				String path = "../bugOutput/Comparisons/" + fileName;
 				pathList.add(path);
 			}
 		}
 		for (String path : pathList) {
-			createBugLists(path);
+			createFixedBugList(path);
 		}
+		createRemainBugLists(_filepath);
+		AccountManager account = AccountManager.getInstance();
+		account.allocateAllBugData(fixed);
 	}
 
-	private void createBugLists(String filepath) {
+	private void createFixedBugList(String filepath) {
 		try {
 			builder = _factory.newDocumentBuilder();
 			Document doc = builder.parse(filepath);
@@ -132,7 +138,32 @@ public class XMLReader {
 								getElements(grandElement, fixed);
 							}
 						}
-					} else if (tagName.equals("RemainingBugs")) {
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void createRemainBugLists(String filepath) {
+		try {
+			builder = _factory.newDocumentBuilder();
+			Document doc = builder.parse(filepath);
+
+			Element root = doc.getDocumentElement();
+			NodeList children = root.getChildNodes();
+
+			for (int i = 0; i < children.getLength(); i++) {
+				Node child = children.item(i);
+				if (child instanceof Element) {
+					Element childElement = (Element) child;
+					String tagName = childElement.getTagName();
+					if (tagName.equals("RemainingBugs")) {
 						NodeList grandChild = childElement.getChildNodes();
 						for (int j = 0; j < grandChild.getLength(); j++) {
 							Node grand = grandChild.item(j);

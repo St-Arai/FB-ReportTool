@@ -72,9 +72,9 @@ public class PersonalDisplay {
 		leftPanel.add(updateButton);
 
 		XMLReader bugData = new XMLReader();
-		bugData.createLatestBugLists();
-		account.updatePersonalData(targetName, bugData.getFixedBugDataList(), 0);
-		ArrayList<BugData> fixedData = bugData.getFixedBugDataList();
+		// bugData.createLatestBugLists();
+		bugData.createAllBugLists();
+		ArrayList<BugData> fixedData = account.getPersonalBugDataList(targetName);
 		ArrayList<BugData> remainData = bugData.getRemainBugDataList();
 
 		JPanel scorePanel = new JPanel();

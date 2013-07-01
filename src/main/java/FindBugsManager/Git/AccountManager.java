@@ -11,15 +11,15 @@ public class AccountManager {
 
 	private ArrayList<String> nameList = new ArrayList<String>();
 
-	private ArrayList<PersonalData> dataList = new ArrayList<PersonalData>();
+	private ArrayList<PersonalData> pDataList = new ArrayList<PersonalData>();
 
 	private AccountManager() {
 
 	}
 
 	public void addPersonalData(PersonalData newData) {
-		dataList.add(newData);
 		if (!(nameList.contains(newData.getName()))) {
+			pDataList.add(newData);
 			nameList.add(newData.getName());
 		}
 	}
@@ -29,7 +29,7 @@ public class AccountManager {
 	}
 
 	public void updatePersonalData(String name, ArrayList<BugData> bugList, int missCount) {
-		for (PersonalData data : dataList) {
+		for (PersonalData data : pDataList) {
 			String comp = data.getName();
 			if (comp.equals(name)) {
 				data.addFixedList(bugList);
@@ -41,12 +41,12 @@ public class AccountManager {
 	}
 
 	public ArrayList<PersonalData> getPersonalDataList() {
-		return dataList;
+		return pDataList;
 	}
 
 	public PersonalData getPersonalData(String name) {
 		PersonalData pdata = null;
-		for (PersonalData data : dataList) {
+		for (PersonalData data : pDataList) {
 			if (data.getName().equals(name)) {
 				pdata = data;
 				break;
@@ -55,10 +55,29 @@ public class AccountManager {
 		return pdata;
 	}
 
+	public void allocateAllBugData(ArrayList<BugData> info) {
+		initAllPersonalData();
+		for (PersonalData pData : pDataList) {
+			String name = pData.getName();
+			for (BugData data : info) {
+				String fixer = data.getFixer();
+				if (name.equals(fixer)) {
+					pData.addFixerData(data);
+				}
+			}
+		}
+	}
+
 	public ArrayList<BugData> getPersonalBugDataList(String name) {
 		PersonalData data = getPersonalData(name);
 		ArrayList<BugData> bugList = data.getInstanceList();
 		return bugList;
+	}
+
+	public void initAllPersonalData() {
+		for (PersonalData data : pDataList) {
+			data.initFixedData();
+		}
 	}
 
 	public static AccountManager getInstance() {

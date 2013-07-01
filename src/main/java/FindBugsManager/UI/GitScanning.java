@@ -18,8 +18,6 @@ import FindBugsManager.Core.Execute;
 import FindBugsManager.Core.Main;
 import FindBugsManager.Core.Settings;
 import FindBugsManager.Core.XMLManager;
-import FindBugsManager.DataSets.BugData;
-import FindBugsManager.DataSets.BugInstanceSet;
 import FindBugsManager.DataSets.PersonalData;
 import FindBugsManager.FindBugs.FindBugsManager;
 import FindBugsManager.Git.AccountManager;
@@ -284,17 +282,16 @@ public class GitScanning implements ActionListener {
 		}
 		execute.checkFixerName();
 
-		ArrayList<BugInstanceSet> edited = manager.getEditedBugList();
-		ArrayList<BugData> data = new ArrayList<BugData>();
-		for (BugInstanceSet set : edited) {
-			if (set.getBugInstance().getBugPattern().getCategory().equals(category)) {
-				data.add(new BugData(set, bonus * categBonus));
-			} else {
-				data.add(new BugData(set, bonus));
-			}
-		}
-		account.updatePersonalData(committer, data, miss);
-
+		// ArrayList<BugInstanceSet> edited = manager.getEditedBugList();
+		// ArrayList<BugData> data = new ArrayList<BugData>();
+		// for (BugInstanceSet set : edited) {
+		// if (set.getBugInstance().getBugPattern().getCategory().equals(category)) {
+		// data.add(new BugData(set, bonus * categBonus));
+		// } else {
+		// data.add(new BugData(set, bonus));
+		// }
+		// }
+		// account.updatePersonalData(committer, data, miss);
 		account.addPersonalData(new PersonalData(committer));
 
 		String comId = targetCommitInfo.getCommitName().substring(0, 4);
