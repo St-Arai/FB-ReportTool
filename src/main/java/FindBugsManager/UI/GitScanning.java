@@ -77,15 +77,18 @@ public class GitScanning implements ActionListener {
 		JButton button2 = new JButton("Make BugInfo File");
 		JButton button3 = new JButton("Show Personal Result");
 		JButton button4 = new JButton("Show All Result");
+		JButton button5 = new JButton("Read all");
 
 		button1.setActionCommand("1");
 		button2.setActionCommand("2");
 		button3.setActionCommand("3");
 		button4.setActionCommand("4");
+		button5.setActionCommand("5");
 		button1.addActionListener(this);
 		button2.addActionListener(this);
 		button3.addActionListener(this);
 		button4.addActionListener(this);
+		button5.addActionListener(this);
 
 		_targetBranches.addActionListener(this);
 		_targetBranches.setActionCommand("TargetChanged");
@@ -108,6 +111,7 @@ public class GitScanning implements ActionListener {
 		panel.add(chboxDouble);
 		panel.add(chboxCateg);
 		panel.add(categoryList);
+		panel.add(button5);
 
 		chboxAuto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -175,6 +179,7 @@ public class GitScanning implements ActionListener {
 
 			switch (commandNum) {
 				case 1 :
+					check.backtoLatestRevision();
 					File[] files = bugDataDirectory.listFiles();
 					boolean preExist = false;
 					boolean curExist = false;
@@ -186,12 +191,13 @@ public class GitScanning implements ActionListener {
 						}
 					}
 					if (curExist == false) {
-						checkoutAndRun(targetCommit, targetComment);
+						int running = checkoutAndRun(targetCommit, targetComment);
+						if (running != 0) {
+							break;
+						}
 					}
 					if (preExist == false) {
 						checkoutAndRun(parentCommit, parentComment);
-					} else {
-						check.backtoLatestRevision();
 					}
 					break;
 				case 2 :
@@ -208,6 +214,8 @@ public class GitScanning implements ActionListener {
 				case 4 :
 					new AllResultsDisplay(new JFrame());
 					break;
+				case 5 :
+
 				default :
 					break;
 			}
@@ -286,6 +294,8 @@ public class GitScanning implements ActionListener {
 			}
 		}
 		account.updatePersonalData(committer, data, miss);
+
+		account.addPersonalData(new PersonalData(committer));
 
 		String comId = targetCommitInfo.getCommitName().substring(0, 4);
 		String preComId = parentCommitInfo.getCommitName().substring(0, 4);

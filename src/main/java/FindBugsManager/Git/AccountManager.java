@@ -23,6 +23,7 @@ public class AccountManager {
 			nameList.add(newData.getName());
 		}
 	}
+
 	public ArrayList<String> getNameList() {
 		return nameList;
 	}

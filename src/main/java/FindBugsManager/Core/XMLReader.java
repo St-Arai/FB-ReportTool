@@ -28,6 +28,9 @@ public class XMLReader {
 	private DocumentBuilderFactory _factory = DocumentBuilderFactory.newInstance();
 	private DocumentBuilder builder = null;
 
+	private String bugDataPath = Settings.getOutputPath();
+	private final File bugDataDirectory = new File(bugDataPath);
+
 	public XMLReader() {
 
 	}
@@ -89,10 +92,28 @@ public class XMLReader {
 		return bugInfoList;
 	}
 
-	public void createBugLists() {
+	public void createLatestBugLists() {
+		createBugLists(_filepath);
+	}
+
+	public void createAllBugLists() {
+		ArrayList<String> pathList = new ArrayList<String>();
+		File[] files = bugDataDirectory.listFiles();
+		for (File file : files) {
+			String path = "../bugOutput/Comparisons/" + file.getName();
+			if (!(path.equals("bugData.xml"))) {
+				pathList.add(path);
+			}
+		}
+		for (String path : pathList) {
+			createBugLists(path);
+		}
+	}
+
+	private void createBugLists(String filepath) {
 		try {
 			builder = _factory.newDocumentBuilder();
-			Document doc = builder.parse(_filepath);
+			Document doc = builder.parse(filepath);
 
 			Element root = doc.getDocumentElement();
 			NodeList children = root.getChildNodes();
@@ -178,6 +199,7 @@ public class XMLReader {
 					bugCondition, bugLine, bugFixer, bugAuthor));
 		}
 	}
+
 	public ArrayList<BugData> getFixedBugDataList() {
 		return fixed;
 	}

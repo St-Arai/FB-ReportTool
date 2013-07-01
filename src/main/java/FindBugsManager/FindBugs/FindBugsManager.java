@@ -51,20 +51,20 @@ public class FindBugsManager {
 				"-xml", "-output", selectedComment + ".xml", "-project", targetPath, "-effort:min");
 		pb2.directory(bugDataDirectory);
 
+		int eValue = 0;
 		try {
-			int eValue = 0;
 			eValue = launchExternalProcess(pb1);
 			if (eValue != 0) {
 				System.out.println("Compile Error!");
 				return -1;
 			}
-			launchExternalProcess(pb2);
+			eValue = launchExternalProcess(pb2);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-		return 0;
+		return eValue;
 	}
 
 	public void createBugInfoList(File currentFile) {

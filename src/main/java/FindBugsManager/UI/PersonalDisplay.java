@@ -72,12 +72,14 @@ public class PersonalDisplay {
 		leftPanel.add(updateButton);
 
 		XMLReader bugData = new XMLReader();
-		bugData.createBugLists();
+		bugData.createLatestBugLists();
+		account.updatePersonalData(targetName, bugData.getFixedBugDataList(), 0);
 		ArrayList<BugData> fixedData = bugData.getFixedBugDataList();
 		ArrayList<BugData> remainData = bugData.getRemainBugDataList();
 
 		JPanel scorePanel = new JPanel();
 		scorePanel.setLayout(new BoxLayout(scorePanel, BoxLayout.PAGE_AXIS));
+		scorePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		JPanel fixedPanel = new JPanel();
 		fixedPanel.setLayout(new BoxLayout(fixedPanel, BoxLayout.PAGE_AXIS));
@@ -290,33 +292,6 @@ public class PersonalDisplay {
 		JLabel next = new JLabel("next... " + remain + " points.");
 		next.setFont(new Font("Consolas", Font.BOLD, 20));
 		next.setAlignmentX(Component.CENTER_ALIGNMENT);
-		//
-		// DefaultPieDataset piedata = new DefaultPieDataset();
-		// piedata.setValue("CORRECTNESS", 10);
-		// piedata.setValue("BAD PRACTICE", 8);
-		// piedata.setValue("DODGYCODE", 15);
-		// piedata.setValue("PERFORMANCE", 1);
-		// JFreeChart chart = ChartFactory.createPieChart("Fixed Bug Category", piedata, false,
-		// false,
-		// false);
-		//
-		// chart.getTitle().setFont(new Font("Consolas", Font.BOLD, 8));
-		//
-		// PiePlot plot = (PiePlot) chart.getPlot();
-		// plot.setOutlineVisible(false);
-		//
-		// plot.setShadowPaint(null);
-		// plot.setSimpleLabels(true);
-		// plot.setLabelFont(new Font("Consolas", Font.BOLD, 4));
-		// plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}={1}"));
-		// plot.setLabelBackgroundPaint(null);
-		// plot.setLabelOutlineStroke(null);
-		// plot.setLabelShadowPaint(null);
-		// plot.setExplodePercent(piedata.getKey(piedata.getItemCount() - 1), 0.1);
-		//
-		// ChartPanel cpanel = new ChartPanel(chart, 50, 50, 50, 50, 100, 100, true, false, false,
-		// false, true, false);
-		// // cpanel.setBounds(10, 10, 50, 50);
 
 		scorePanel.add(score);
 		scorePanel.add(next);
@@ -371,18 +346,9 @@ public class PersonalDisplay {
 			pointlabel.setForeground(Color.red);
 
 			leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-
 		}
-		// leftPanel.add(iconLabel);
-		// leftPanel.add(nameLabel);
-		// leftPanel.add(jobLabel);
-		// leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
-		// leftPanel.add(scorePanel);
-		// leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
-		// leftPanel.add(button);
 
 		centerPanel.add(fixedPanel);
-		// panel.add(cpanel);
 
 		scrollpaneR.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollpaneR.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -396,19 +362,10 @@ public class PersonalDisplay {
 		splitpaneR.setDividerSize(3);
 		splitpaneR.setRightComponent(scrollpaneR);
 		splitpaneR.setLeftComponent(scrollpaneC);
-		// splitpaneR.setResizeWeight(1.0);
 
 		splitpaneR.setPreferredSize(null);
 		splitpane.setRightComponent(splitpaneR);
 		splitpane.setLeftComponent(scrollpaneL);
-
-		// JFreeChart chart = ChartFactory.createPieChart("Bug Category",
-		// piedata,
-		// true, false, false);
-
-		// ChartPanel cpanel = new ChartPanel(chart);
-		// cpanel.setAlignmentX(0.5f);
-		// panel.add(cpanel);
 
 		splitpane.setPreferredSize(null);
 		_frame.add(splitpane, BorderLayout.CENTER);
