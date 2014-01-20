@@ -254,6 +254,10 @@ public class GitScanning implements ActionListener {
 			System.out.println("Run FindBugs...");
 			miss = checkoutAndRun(targetCommit, targetComment);
 		}
+		if (miss != 0) {
+			return;
+		}
+
 		System.out.println("Now");
 		manager.createBugInfoList(currentOutput);
 
@@ -265,8 +269,12 @@ public class GitScanning implements ActionListener {
 		File parentOutput = new File(bugDataDirectory, parentComment + ".xml");
 		if (!(parentOutput.exists())) {
 			System.out.println("Run FindBugs...");
-			checkoutAndRun(parentCommit, parentComment);
+			miss = checkoutAndRun(parentCommit, parentComment);
 		}
+		if (miss != 0) {
+			return;
+		}
+
 		System.out.println("Past");
 		manager.createPreBugInfoList(parentOutput);
 
@@ -282,16 +290,6 @@ public class GitScanning implements ActionListener {
 		}
 		execute.checkFixerName();
 
-		// ArrayList<BugInstanceSet> edited = manager.getEditedBugList();
-		// ArrayList<BugData> data = new ArrayList<BugData>();
-		// for (BugInstanceSet set : edited) {
-		// if (set.getBugInstance().getBugPattern().getCategory().equals(category)) {
-		// data.add(new BugData(set, bonus * categBonus));
-		// } else {
-		// data.add(new BugData(set, bonus));
-		// }
-		// }
-		// account.updatePersonalData(committer, data, miss);
 		account.addPersonalData(new PersonalData(committer));
 
 		String comId = targetCommitInfo.getCommitName().substring(0, 4);

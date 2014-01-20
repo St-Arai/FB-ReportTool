@@ -8,10 +8,10 @@ import FindBugsManager.UI.Login;
 
 public class Main {
 
-	private static final File gitFile = new File(Settings.getPath11());
-	private static final String targetPath = Settings.getFbpPath11();
+	private static final File gitFile = new File(Settings.getPath13());
+	private static final String targetPath = Settings.getFbpPath13();
 
-	private static final String antXMLPath = "build1-1.xml";
+	private static final String antXMLPath = "build1-3.xml";
 	private static final String filePath = "src/src/FBsample.java";
 
 	private Main() {

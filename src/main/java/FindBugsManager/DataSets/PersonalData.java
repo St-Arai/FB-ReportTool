@@ -54,7 +54,7 @@ public class PersonalData {
 		return _missCount;
 	}
 
-	public ArrayList<BugData> getInstanceList() {
+	public ArrayList<BugData> getFixedDataList() {
 		return fixedList;
 	}
 

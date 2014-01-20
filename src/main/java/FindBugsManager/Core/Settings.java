@@ -41,15 +41,27 @@ public class Settings {
 	public static String getPath11() {
 		return properties.getProperty("experiment1-1");
 	}
+
 	public static String getPath12() {
 		return properties.getProperty("experiment1-2");
 	}
+
+	public static String getPath13() {
+		return properties.getProperty("experiment1-3");
+	}
+
+	public static String getPath14() {
+		return properties.getProperty("experiment1-4");
+	}
+
 	public static String getPath21() {
 		return properties.getProperty("experiment2-1");
 	}
+
 	public static String getPath22() {
 		return properties.getProperty("experiment2-2");
 	}
+
 	public static String getPathTest() {
 		return properties.getProperty("experimentTest");
 	}
@@ -57,15 +69,27 @@ public class Settings {
 	public static String getFbpPath11() {
 		return properties.getProperty("experiment1-1-fbp");
 	}
+
 	public static String getFbpPath12() {
 		return properties.getProperty("experiment1-2-fbp");
 	}
+
+	public static String getFbpPath13() {
+		return properties.getProperty("experiment1-3-fbp");
+	}
+
+	public static String getFbpPath14() {
+		return properties.getProperty("experiment1-4-fbp");
+	}
+
 	public static String getFbpPath21() {
 		return properties.getProperty("experiment2-1-fbp");
 	}
+
 	public static String getFbpPath22() {
 		return properties.getProperty("experiment2-2-fbp");
 	}
+
 	public static String getFbpPathTest() {
 		return properties.getProperty("experimentTest-fbp");
 	}

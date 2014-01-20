@@ -72,9 +72,9 @@ public class PersonalDisplay {
 		leftPanel.add(updateButton);
 
 		XMLReader bugData = new XMLReader();
-		// bugData.createLatestBugLists();
+		bugData.createLatestBugLists();
 		bugData.createAllBugLists();
-		ArrayList<BugData> fixedData = account.getPersonalBugDataList(targetName);
+		ArrayList<BugData> fixedData = bugData.getFixedBugDataList();
 		ArrayList<BugData> remainData = bugData.getRemainBugDataList();
 
 		JPanel scorePanel = new JPanel();
@@ -309,10 +309,10 @@ public class PersonalDisplay {
 		leftPanel.add(sumLabel);
 		leftPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-		ArrayList<BugData> dataList = account.getPersonalBugDataList(targetName);
-		Collections.sort(dataList, new IndexSort());
+		ArrayList<BugData> historyDataList = account.getPersonalBugDataList(targetName);
+		Collections.sort(historyDataList, new IndexSort());
 
-		for (BugData data : dataList) {
+		for (BugData data : historyDataList) {
 			int rank = data.getRank();
 			String abbrev = data.getAbbrev();
 			String category = data.getCategory();

@@ -22,6 +22,7 @@ import edu.umd.cs.findbugs.BugInstance;
 public class XMLReader {
 
 	private ArrayList<BugData> fixed = new ArrayList<BugData>();
+	private ArrayList<BugData> allFixed = new ArrayList<BugData>();
 	private ArrayList<BugData> remain = new ArrayList<BugData>();
 
 	private String _filepath = "../bugOutput/Comparisons/bugData.xml";
@@ -94,7 +95,7 @@ public class XMLReader {
 	}
 
 	public void createLatestBugLists() {
-		createFixedBugList(_filepath);
+		createFixedBugList(_filepath, fixed);
 		createRemainBugLists(_filepath);
 	}
 
@@ -109,14 +110,13 @@ public class XMLReader {
 			}
 		}
 		for (String path : pathList) {
-			createFixedBugList(path);
+			createFixedBugList(path, allFixed);
 		}
-		createRemainBugLists(_filepath);
 		AccountManager account = AccountManager.getInstance();
-		account.allocateAllBugData(fixed);
+		account.allocateAllBugData(allFixed);
 	}
 
-	private void createFixedBugList(String filepath) {
+	private void createFixedBugList(String filepath, ArrayList<BugData> addList) {
 		try {
 			builder = _factory.newDocumentBuilder();
 			Document doc = builder.parse(filepath);
@@ -135,7 +135,7 @@ public class XMLReader {
 							Node grand = grandChild.item(j);
 							if (grand instanceof Element) {
 								Element grandElement = (Element) grand;
-								getElements(grandElement, fixed);
+								getElements(grandElement, addList);
 							}
 						}
 					}
@@ -233,6 +233,10 @@ public class XMLReader {
 
 	public ArrayList<BugData> getFixedBugDataList() {
 		return fixed;
+	}
+
+	public ArrayList<BugData> getAllFixedDataList() {
+		return allFixed;
 	}
 
 	public ArrayList<BugData> getRemainBugDataList() {

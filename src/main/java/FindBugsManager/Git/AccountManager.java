@@ -70,7 +70,7 @@ public class AccountManager {
 
 	public ArrayList<BugData> getPersonalBugDataList(String name) {
 		PersonalData data = getPersonalData(name);
-		ArrayList<BugData> bugList = data.getInstanceList();
+		ArrayList<BugData> bugList = data.getFixedDataList();
 		return bugList;
 	}
 

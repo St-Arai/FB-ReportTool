@@ -89,8 +89,6 @@ public class AllResultsDisplay {
 		splitpane.setLeftComponent(splitpaneL);
 		splitpane.setPreferredSize(null);
 
-		// splitpaneR.setResizeWeight(1.0);
-
 		JButton button = new JButton("Update");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -215,6 +213,7 @@ public class AllResultsDisplay {
 
 		_frame.setVisible(true);
 	}
+
 	private void setFont(JLabel label, int fontSize) {
 		label.setFont(new Font("Consolas", Font.BOLD, fontSize));
 		label.setHorizontalAlignment(JLabel.LEFT);
