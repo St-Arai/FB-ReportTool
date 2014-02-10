@@ -212,7 +212,7 @@ public class GitScanning implements ActionListener {
 				case 4 :
 					new AllResultsDisplay(new JFrame());
 					break;
-				case 5 :
+				// case 5 :
 
 				default :
 					break;
