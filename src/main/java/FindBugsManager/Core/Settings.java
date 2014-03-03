@@ -66,6 +66,10 @@ public class Settings {
 		return properties.getProperty("experimentTest");
 	}
 
+	public static String getPathSample() {
+		return properties.getProperty("Sample");
+	}
+
 	public static String getFbpPath11() {
 		return properties.getProperty("experiment1-1-fbp");
 	}
@@ -92,6 +96,10 @@ public class Settings {
 
 	public static String getFbpPathTest() {
 		return properties.getProperty("experimentTest-fbp");
+	}
+
+	public static String getFbpPathSample() {
+		return properties.getProperty("Sample-fbp");
 	}
 
 }

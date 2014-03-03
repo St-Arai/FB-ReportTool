@@ -42,13 +42,16 @@ public class FindBugsManager {
 		editedBugList = new ArrayList<BugInstanceSet>();
 	}
 
-	public static int runFindbugs(String selectedComment, String targetPath, File bugDataDirectory) {
+	public static int runFindbugs(String selectedComment, String targetPath,
+			File bugDataDirectory) {
 
-		ProcessBuilder pb1 = new ProcessBuilder("cmd.exe", "/C", "ant", "-f", antXML);
+		ProcessBuilder pb1 = new ProcessBuilder("cmd.exe", "/C", "ant", "-f",
+				antXML);
 		pb1.directory(new File("../"));
 
-		ProcessBuilder pb2 = new ProcessBuilder("cmd.exe", "/C", "findbugs", "-textui", "-low",
-				"-xml", "-output", selectedComment + ".xml", "-project", targetPath, "-effort:min");
+		ProcessBuilder pb2 = new ProcessBuilder("cmd.exe", "/C", "findbugs",
+				"-textui", "-low", "-xml", "-output", selectedComment + ".xml",
+				"-project", targetPath, "-effort:min");
 		pb2.directory(bugDataDirectory);
 
 		int eValue = 0;
@@ -85,9 +88,11 @@ public class FindBugsManager {
 				min = preInfoList.size();
 			}
 			for (int i = 0; i < min; i++) {
-				System.out
-						.print(infoList.get(i).getBugInstance().getBugPattern().getAbbrev() + " ");
-				System.out.println(preInfoList.get(i).getBugInstance().getBugPattern().getAbbrev());
+				System.out.print(infoList.get(i).getBugInstance()
+						.getBugPattern().getAbbrev()
+						+ " ");
+				System.out.println(preInfoList.get(i).getBugInstance()
+						.getBugPattern().getAbbrev());
 			}
 		}
 	}
@@ -131,13 +136,16 @@ public class FindBugsManager {
 						break;
 					}
 				}
+			} else {
+				newTypeList.add(type);
 			}
 		}
 
 		for (String name : editedTypeList) {
 			for (int i = 0; i < preInfoList.size(); i++) {
 				BugInstanceSet preInfo = preInfoList.get(i);
-				if (preInfo.getBugInstance().getBugPattern().getType().equals(name)) {
+				if (preInfo.getBugInstance().getBugPattern().getType()
+						.equals(name)) {
 					preInfo.setEditType(EditType.EDIT);
 					preInfo.setAmender(_committer);
 					editedBugList.add(preInfo);
@@ -149,8 +157,10 @@ public class FindBugsManager {
 		for (String name : newTypeList) {
 			for (int i = 0; i < infoList.size(); i++) {
 				BugInstanceSet info = infoList.get(i);
-				String typeName = info.getBugInstance().getBugPattern().getType();
-				if (typeName.equals(name) && info.getEditType().equals(EditType.NO_CHANGE)) {
+				String typeName = info.getBugInstance().getBugPattern()
+						.getType();
+				if (typeName.equals(name)
+						&& info.getEditType().equals(EditType.NO_CHANGE)) {
 					info.setEditType(EditType.NEW);
 					info.setAuthor(_committer);
 					break;
@@ -179,7 +189,8 @@ public class FindBugsManager {
 				for (BugInstanceSet info : infoList) {
 					if (info.getEditedStartLine() <= editedBugStart
 							&& editedBugStart <= info.getEditedEndLine()) {
-						if (info.getBugInstance().equals(editedBugInfo.getBugInstance())) {
+						if (info.getBugInstance().equals(
+								editedBugInfo.getBugInstance())) {
 							info.setExistFlag(true);
 						}
 					}
@@ -196,7 +207,8 @@ public class FindBugsManager {
 
 			ArrayList<String> author;
 			for (BugInstanceSet bugInfo : editedBugList) {
-				author = blame.getAuthors(bugInfo.getStartLine(), bugInfo.getEndLine());
+				author = blame.getAuthors(bugInfo.getStartLine(),
+						bugInfo.getEndLine());
 				bugInfo.setAmender(author.get(0));
 			}
 		}
@@ -233,8 +245,8 @@ public class FindBugsManager {
 		_committer = committer;
 	}
 
-	private static int launchExternalProcess(ProcessBuilder pb) throws IOException,
-			InterruptedException {
+	private static int launchExternalProcess(ProcessBuilder pb)
+			throws IOException, InterruptedException {
 		Process process = pb.start();
 		final InputStream in = process.getInputStream();
 		final InputStream ein = process.getErrorStream();
@@ -244,7 +256,8 @@ public class FindBugsManager {
 				try {
 					String line = null;
 					System.out.println("Thread stdRun start");
-					BufferedReader br = new BufferedReader(new InputStreamReader(in));
+					BufferedReader br = new BufferedReader(
+							new InputStreamReader(in));
 					while ((line = br.readLine()) != null) {
 						System.out.println(line);
 					}
@@ -259,7 +272,8 @@ public class FindBugsManager {
 				try {
 					String errLine = null;
 					System.out.println("Thread errRun start");
-					BufferedReader ebr = new BufferedReader(new InputStreamReader(ein));
+					BufferedReader ebr = new BufferedReader(
+							new InputStreamReader(ein));
 					while ((errLine = ebr.readLine()) != null) {
 						System.out.println(errLine);
 					}
