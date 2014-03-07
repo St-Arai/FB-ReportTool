@@ -15,7 +15,7 @@ public class BugInstanceSet {
 
 	private boolean _bugsExistFlag = false;
 
-	private String _author = null;
+	private String _author = "None";
 	private String _amender = null;
 
 	private EditType _type = null;

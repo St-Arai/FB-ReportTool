@@ -128,6 +128,15 @@ public class PersonalDisplay {
 			}
 		}
 
+		JButton battleButton = new JButton("Battle!");
+		final int statusponint = sum;
+		battleButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new Battle(new JFrame(), statusponint);
+			}
+		});
+		leftPanel.add(battleButton);
+
 		ArrayList<BugData> pBugList = account.getPersonalBugDataList(targetName);
 		for (BugData data : pBugList) {
 			String category = data.getCategory();
@@ -263,11 +272,13 @@ public class PersonalDisplay {
 
 			if (condition.equals("NEW")) {
 				newBugCount++;
+
 				JLabel label8 = new JLabel("New Bug!");
 				label8.setFont(new Font("Consolas", Font.BOLD, 18));
 				label8.setForeground(Color.MAGENTA);
 				label8.setHorizontalAlignment(JLabel.LEFT);
 				label8.setVerticalAlignment(JLabel.TOP);
+
 				rightPanel.add(label8);
 			}
 			rightPanel.add(label);
@@ -276,6 +287,17 @@ public class PersonalDisplay {
 			rightPanel.add(label4);
 			rightPanel.add(label5);
 			rightPanel.add(label6);
+
+			if (condition.equals("NEW")) {
+				String author = data.getAuthor();
+				JLabel label7 = new JLabel("Author : " + author);
+				label7.setFont(new Font("Consolas", Font.BOLD, 15));
+				label7.setForeground(Color.BLUE);
+				label7.setHorizontalAlignment(JLabel.LEFT);
+				label7.setVerticalAlignment(JLabel.TOP);
+				rightPanel.add(label7);
+			}
+
 			rightPanel.add(pointlabel);
 			rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 		}

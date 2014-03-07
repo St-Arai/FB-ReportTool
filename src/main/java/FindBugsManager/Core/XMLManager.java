@@ -64,11 +64,16 @@ public class XMLManager {
 				Element instance = document.createElement("BugInstance");
 				fixedBugs.appendChild(instance);
 
-				createNodes(document, info, instance, bonus, targetCateg, categBonus);
+				createNodes(document, info, instance, bonus, targetCateg, categBonus, "Edit");
 
 				Element amender = document.createElement("Amender");
 				instance.appendChild(amender);
-				Text amenderText = document.createTextNode(info.getAmender());
+				Text amenderText = null;
+				if (info.getEditType().name().equals("NEW")) {
+					amenderText = document.createTextNode(info.getAuthor());
+				} else {
+					amenderText = document.createTextNode(info.getAmender());
+				}
 				amender.appendChild(amenderText);
 			}
 
@@ -81,7 +86,12 @@ public class XMLManager {
 				Element instance = document.createElement("BugInstance");
 				remainBugs.appendChild(instance);
 
-				createNodes(document, info, instance, 1, null, 1);
+				createNodes(document, info, instance, 1, null, 1, "Remain");
+
+				Element author = document.createElement("Author");
+				instance.appendChild(author);
+				Text authorText = document.createTextNode(info.getAuthor());
+				author.appendChild(authorText);
 			}
 
 			TransformerFactory tf = TransformerFactory.newInstance();
@@ -119,7 +129,7 @@ public class XMLManager {
 	}
 
 	private void createNodes(Document document, BugInstanceSet info, Element instance, int bonus,
-			String targetCateg, int categBonus) {
+			String targetCateg, int categBonus, String bugstype) {
 		Element category = document.createElement("Category");
 		instance.appendChild(category);
 		Text categoryText = document.createTextNode(info.getBugInstance().getBugPattern()
@@ -146,12 +156,17 @@ public class XMLManager {
 
 		String categ = info.getBugInstance().getBugPattern().getCategory();
 		Text pointText = null;
-		if (categ.equals(targetCateg)) {
-			pointText = document.createTextNode(String.valueOf((21 - info.getBugInstance()
-					.getBugRank()) * (bonus * categBonus)));
+		if (bugstype.equals("Edit") && info.getEditType().name().equals("NEW")) {
+			pointText = document.createTextNode((String.valueOf((21 - info.getBugInstance()
+					.getBugRank()) * -1)));
 		} else {
-			pointText = document.createTextNode(String.valueOf((21 - info.getBugInstance()
-					.getBugRank()) * bonus));
+			if (categ.equals(targetCateg)) {
+				pointText = document.createTextNode(String.valueOf((21 - info.getBugInstance()
+						.getBugRank()) * (bonus * categBonus)));
+			} else {
+				pointText = document.createTextNode(String.valueOf((21 - info.getBugInstance()
+						.getBugRank()) * bonus));
+			}
 		}
 		point.appendChild(pointText);
 

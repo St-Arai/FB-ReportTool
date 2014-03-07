@@ -48,8 +48,8 @@ public class GitScanning implements ActionListener {
 	private JComboBox<String> _parentBranches = new JComboBox<String>();
 	private JComboBox<String> _committerList = new JComboBox<String>();
 
-	private String[] comboData = {"CORRECTNESS", "SECURITY", "BAD_PRACTICE",
-			"STYLE", "PERFORMANCE", "MALICIOUS_CODE", "MT_CORRECTNESS", "I18N"};
+	private String[] comboData = { "CORRECTNESS", "SECURITY", "BAD_PRACTICE", "STYLE",
+			"PERFORMANCE", "MALICIOUS_CODE", "MT_CORRECTNESS", "I18N" };
 	private JComboBox<String> categoryList = new JComboBox<String>(comboData);
 
 	private String bugDataPath = Settings.getBugDataStorePath();
@@ -75,18 +75,15 @@ public class GitScanning implements ActionListener {
 		JButton button2 = new JButton("Make BugInfo File");
 		JButton button3 = new JButton("Show Personal Result");
 		JButton button4 = new JButton("Show All Result");
-		JButton button5 = new JButton("Read all");
 
 		button1.setActionCommand("1");
 		button2.setActionCommand("2");
 		button3.setActionCommand("3");
 		button4.setActionCommand("4");
-		button5.setActionCommand("5");
 		button1.addActionListener(this);
 		button2.addActionListener(this);
 		button3.addActionListener(this);
 		button4.addActionListener(this);
-		button5.addActionListener(this);
 
 		_targetBranches.addActionListener(this);
 		_targetBranches.setActionCommand("TargetChanged");
@@ -109,7 +106,6 @@ public class GitScanning implements ActionListener {
 		panel.add(chboxDouble);
 		panel.add(chboxCateg);
 		panel.add(categoryList);
-		panel.add(button5);
 
 		chboxAuto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -165,60 +161,55 @@ public class GitScanning implements ActionListener {
 
 			CommitInfo targetCommitInfo = _commitLog.get(targetIndex);
 			String targetCommit = targetCommitInfo.getCommitName();
-			String targetComment = targetCommitInfo.getCommitMessage()
-					.replaceAll("\n", "");
+			String targetComment = targetCommitInfo.getCommitMessage().replaceAll("\n", "");
 			int commitNumber = targetCommitInfo.getCommitNumber();
 			targetComment = setValidCommitName(targetComment, commitNumber);
 
 			CommitInfo parentCommitInfo = _parentLog.get(parentIndex);
 			String parentCommit = parentCommitInfo.getCommitName();
-			String parentComment = parentCommitInfo.getCommitMessage()
-					.replaceAll("\n", "");
+			String parentComment = parentCommitInfo.getCommitMessage().replaceAll("\n", "");
 			int parentNumber = parentCommitInfo.getCommitNumber();
 			parentComment = setValidCommitName(parentComment, parentNumber);
 
 			switch (commandNum) {
-				case 1 :
-					check.backtoLatestRevision();
-					File[] files = bugDataDirectory.listFiles();
-					boolean preExist = false;
-					boolean curExist = false;
-					for (File file : files) {
-						if ((parentComment + ".xml").equals(file.getName())) {
-							preExist = true;
-						} else if ((targetComment + ".xml").equals(file
-								.getName())) {
-							curExist = true;
-						}
+			case 1:
+				check.backtoLatestRevision();
+				File[] files = bugDataDirectory.listFiles();
+				boolean preExist = false;
+				boolean curExist = false;
+				for (File file : files) {
+					if ((parentComment + ".xml").equals(file.getName())) {
+						preExist = true;
+					} else if ((targetComment + ".xml").equals(file.getName())) {
+						curExist = true;
 					}
-					if (curExist == false) {
-						int running = checkoutAndRun(targetCommit,
-								targetComment);
-						if (running != 0) {
-							break;
-						}
+				}
+				if (curExist == false) {
+					int running = checkoutAndRun(targetCommit, targetComment);
+					if (running != 0) {
+						break;
 					}
-					if (preExist == false) {
-						checkoutAndRun(parentCommit, parentComment);
-					}
-					break;
-				case 2 :
-					outputBugsResult(targetIndex, parentIndex, categIndex);
-					initCommitterInfo();
-					check.backtoLatestRevision();
-					break;
-				case 3 :
-					if (committerNum >= 0) {
-						String target = _committerList.getItemAt(committerNum);
-						new PersonalDisplay(new JFrame(), target);
-					}
-					break;
-				case 4 :
-					new AllResultsDisplay(new JFrame());
-					break;
-
-				default :
-					break;
+				}
+				if (preExist == false) {
+					checkoutAndRun(parentCommit, parentComment);
+				}
+				break;
+			case 2:
+				outputBugsResult(targetIndex, parentIndex, categIndex);
+				initCommitterInfo();
+				check.backtoLatestRevision();
+				break;
+			case 3:
+				if (committerNum >= 0) {
+					String target = _committerList.getItemAt(committerNum);
+					new PersonalDisplay(new JFrame(), target);
+				}
+				break;
+			case 4:
+				new AllResultsDisplay(new JFrame());
+				break;
+			default:
+				break;
 			}
 		} else if (action.equals("TargetChanged")) {
 			_parentBranches.removeAllItems();
@@ -238,8 +229,7 @@ public class GitScanning implements ActionListener {
 		execute.resumeAutoPull();
 	}
 
-	private void outputBugsResult(int targetIndex, int parentIndex,
-			int categIndex) {
+	private void outputBugsResult(int targetIndex, int parentIndex, int categIndex) {
 
 		FindBugsManager manager = FindBugsManager.getInstance();
 		CommitInfo targetCommitInfo = _commitLog.get(targetIndex);
@@ -248,8 +238,7 @@ public class GitScanning implements ActionListener {
 		manager.setCommitter(committer);
 
 		String targetCommit = targetCommitInfo.getCommitName();
-		String targetComment = targetCommitInfo.getCommitMessage().replaceAll(
-				"\n", "");
+		String targetComment = targetCommitInfo.getCommitMessage().replaceAll("\n", "");
 		int commitNumber = targetCommitInfo.getCommitNumber();
 		targetComment = setValidCommitName(targetComment, commitNumber);
 
@@ -267,8 +256,7 @@ public class GitScanning implements ActionListener {
 		manager.createBugInfoList(currentOutput);
 
 		String parentCommit = parentCommitInfo.getCommitName();
-		String parentComment = parentCommitInfo.getCommitMessage().replaceAll(
-				"\n", "");
+		String parentComment = parentCommitInfo.getCommitMessage().replaceAll("\n", "");
 		int parentNumber = parentCommitInfo.getCommitNumber();
 		parentComment = setValidCommitName(parentComment, parentNumber);
 
@@ -300,8 +288,7 @@ public class GitScanning implements ActionListener {
 
 		String comId = targetCommitInfo.getCommitName().substring(0, 4);
 		String preComId = parentCommitInfo.getCommitName().substring(0, 4);
-		String id = setOutputFileName(commitNumber, parentNumber, comId,
-				preComId);
+		String id = setOutputFileName(commitNumber, parentNumber, comId, preComId);
 
 		XMLManager xml = new XMLManager();
 		xml.createXML(manager, id, bonus, category, categBonus);
@@ -312,8 +299,7 @@ public class GitScanning implements ActionListener {
 	private int checkoutAndRun(String commitName, String commitComment) {
 		CheckoutManager check = new CheckoutManager();
 		check.checkoutCommand(commitName);
-		int running = FindBugsManager.runFindbugs(commitComment, targetPath,
-				bugDataDirectory);
+		int running = FindBugsManager.runFindbugs(commitComment, targetPath, bugDataDirectory);
 		check.backtoLatestRevision();
 		return running;
 	}
@@ -326,14 +312,14 @@ public class GitScanning implements ActionListener {
 		String comment = stb.toString();
 		int place = comment.indexOf(":");
 		if (place > 0) {
-			comment = comment.substring(0, place).replaceAll("'", "")
-					.replaceAll("/", "").replaceAll(".com", "");
+			comment = comment.substring(0, place).replaceAll("'", "").replaceAll("/", "")
+					.replaceAll(".com", "");
 		}
 		return comment;
 	}
 
-	private String setOutputFileName(int targetNumber, int parentNumber,
-			String comId, String preComId) {
+	private String setOutputFileName(int targetNumber, int parentNumber, String comId,
+			String preComId) {
 		StringBuilder stb = new StringBuilder();
 		stb.append(String.valueOf(parentNumber));
 		stb.append("to");
